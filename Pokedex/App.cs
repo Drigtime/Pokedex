@@ -1,7 +1,11 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Terminal.Gui;
+using Pokedex.PokeApi;
 
 namespace Pokedex
 {
@@ -9,6 +13,8 @@ namespace Pokedex
     {
         static App()
         {
+            NamedAPIResourceList resourceList = null;
+
             Application.Init();
 
             var top = new Toplevel()
@@ -70,8 +76,8 @@ namespace Pokedex
             };
 
             var researchButton = new Button("Rechercher");
-            researchButton.X = Pos.Right(research)+1;
-            researchButton.Y = 4;       
+            researchButton.X = Pos.Right(research) + 1;
+            researchButton.Y = 4;
 
             var previousButton = new Button("Previous");
             previousButton.X = 0;
@@ -81,7 +87,54 @@ namespace Pokedex
             nextButton.X = Pos.AnchorEnd() - (Pos.Right(nextButton) - Pos.Left(nextButton));
             nextButton.Y = Pos.AnchorEnd(1);
 
-            list.Add(previousButton, nextButton);
+
+            var listView = new ListView()
+            {
+                X = 0,
+                Y = 0,
+                Width = Dim.Fill(),
+                Height = Dim.Fill() - 1
+            };
+            listView.OpenSelectedItem += (e) =>
+            {
+                Console.WriteLine(e.Value.ToString());
+                //Application.MainLoop.Invoke(async () =>
+                //{
+                //    List<PokeApi.NamedAPIResource> pokemons = await Program.List();
+                //    listView.SetSource(pokemons);
+                //});
+            };
+
+            Application.MainLoop.Invoke(async () =>
+            {
+                resourceList = await Program.List();
+                listView.SetSource(resourceList.Results.Select(pokemon => pokemon.Name).ToList());
+            });
+
+            previousButton.Clicked += () =>
+            {
+                Application.MainLoop.Invoke(async () =>
+                {
+                    if (resourceList.Previous != null)
+                    {
+                        resourceList = await Program.List(resourceList.Previous.Segments[3] + resourceList.Previous.Query);
+                        listView.SetSource(resourceList.Results.Select(pokemon => pokemon.Name).ToList());
+                    }
+                });
+            };
+            nextButton.Clicked += () =>
+            {
+                Application.MainLoop.Invoke(async () =>
+                {
+                    if (resourceList.Next != null)
+                    {
+                        resourceList = await Program.List(resourceList.Next.Segments[3] + resourceList.Next.Query);
+                        listView.SetSource(resourceList.Results.Select(pokemon => pokemon.Name).ToList());
+                    }
+                });
+            };
+
+            list.Add(previousButton, nextButton, listView);
             top.Add(menu, win, list, specs, research, researchLabel, researchButton);
             Application.Run(top);
 

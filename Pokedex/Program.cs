@@ -11,26 +11,13 @@ namespace Pokedex
         {
             //interface de l'app
             Application.Run<App>();
-
-            List().GetAwaiter().GetResult();
-            ListAll().GetAwaiter().GetResult();
         }
 
-        static async Task List()
+        public static async Task<NamedAPIResourceList> List(string prefix = "pokemon?limit=20")
         {
             ApiHelper apiHelper = new ApiHelper(new Uri("https://pokeapi.co/api/v2/"));
-            NamedAPIResourceList resourceList = await apiHelper.CallWebAPIAsync("pokemon?limit=100&offset=200");
-
-            Console.WriteLine(
-                    @$"
-                    Count: {resourceList.Count}
-                    Next: {resourceList.Next}
-                    Previous: {resourceList.Previous}
-                    Result: [
-                        name: {resourceList.Results[0].Name}
-                        url: {resourceList.Results[0].Url}
-                    ]"
-                );
+            NamedAPIResourceList resourceList = await apiHelper.CallWebAPIAsync(prefix);
+            return resourceList;
         }
 
         static async Task ListAll()
