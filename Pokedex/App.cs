@@ -57,7 +57,7 @@ namespace Pokedex
             {
                 X = 2,
                 Y = 3,
-                Width = 30,
+                Width = 25,
                 Height = 1
             };
 
@@ -65,9 +65,13 @@ namespace Pokedex
             {
                 X = 2,
                 Y = 4,
-                Width = 30,
+                Width = 25,
                 Height = 1
             };
+
+            var researchButton = new Button("Rechercher");
+            researchButton.X = Pos.Right(research)+1;
+            researchButton.Y = 4;       
 
             var previousButton = new Button("Previous");
             previousButton.X = 0;
@@ -78,7 +82,7 @@ namespace Pokedex
             nextButton.Y = Pos.AnchorEnd(1);
 
             list.Add(previousButton, nextButton);
-            top.Add(menu, win, list, specs, research, researchLabel);
+            top.Add(menu, win, list, specs, research, researchLabel, researchButton);
             Application.Run(top);
 
         }
