@@ -14,7 +14,7 @@ namespace Pokedex
     {
         private const string Left = "left";
         private const string Right = "right";
- 
+
         static App()
         {
             NamedAPIResourceList resourceList = null;
@@ -38,11 +38,13 @@ namespace Pokedex
             };
 
             var menu = new MenuBar(
-                new MenuBarItem[] {
+                new MenuBarItem[]
+                {
                     //new MenuBarItem ("_File", new MenuItem [] {
-                        new MenuBarItem ("_Quit", "", () => {
-                            Application.Shutdown ();
-                            Environment.Exit(0);
+                    new MenuBarItem("_Quit", "", () =>
+                    {
+                        Application.Shutdown();
+                        Environment.Exit(0);
                         //})
                     }),
                 });
@@ -99,43 +101,54 @@ namespace Pokedex
                 Width = Dim.Fill(),
                 Height = Dim.Fill() - 1
             };
-            listView.Initialized += (e, s) => { resourceList = GetNamedApiResourceList(resourceList, listView); };
-            listView.OpenSelectedItem += (e) =>
+            listView.Initialized += (e, s) =>
             {
-                Console.WriteLine(e.Value);
+                Application.MainLoop.Invoke(async () =>
+                {
+                    resourceList = await GetNamedApiResourceList(resourceList, listView);
+                });
             };
+            listView.OpenSelectedItem += (e) => { Console.WriteLine(e.Value); };
 
-            previousButton.Clicked += () => { resourceList = GetNamedApiResourceList(resourceList, listView, Left); };
-            nextButton.Clicked += () => { resourceList = GetNamedApiResourceList(resourceList, listView, Right); };
+            previousButton.Clicked += () =>
+            {
+                Application.MainLoop.Invoke(async () =>
+                {
+                    resourceList = await GetNamedApiResourceList(resourceList, listView, Left);
+                });
+            };
+            nextButton.Clicked += () =>
+            {
+                Application.MainLoop.Invoke(async () =>
+                {
+                    resourceList = await GetNamedApiResourceList(resourceList, listView, Right);
+                });
+            };
 
             list.Add(previousButton, nextButton, listView);
             top.Add(menu, win, list, specs, research, researchLabel, researchButton);
             Application.Run(top);
-
         }
 
-        private static NamedAPIResourceList GetNamedApiResourceList(NamedAPIResourceList resourceList, ListView listView, string direction)
+        private static async Task<NamedAPIResourceList> GetNamedApiResourceList(NamedAPIResourceList resourceList,
+            ListView listView, string direction)
         {
-            Application.MainLoop.Invoke(async () =>
+            Uri uri = direction == Left ? resourceList.Previous : resourceList.Next;
+
+            if (uri != null)
             {
-                Uri uri = direction == Left ? resourceList.Previous : resourceList.Next;
-                
-                if (uri != null)
-                {
-                    resourceList = await Program.List($"{uri.Segments[3]}{uri.Query}");
-                    listView.SetSource(resourceList.Results);
-                }
-            });
+                resourceList = await Program.List($"{uri.Segments[3]}{uri.Query}");
+                listView.SetSource(resourceList.Results);
+            }
+
             return resourceList;
         }
-        
-        private static NamedAPIResourceList GetNamedApiResourceList(NamedAPIResourceList resourceList, ListView listView)
+
+        private static async Task<NamedAPIResourceList> GetNamedApiResourceList(NamedAPIResourceList resourceList,
+            ListView listView)
         {
-            Application.MainLoop.Invoke(async () =>
-            {
-                resourceList = await Program.List();
-                listView.SetSource(resourceList.Results.Select(pokemon => pokemon.Name).ToList());
-            });
+            resourceList = await Program.List();
+            listView.SetSource(resourceList.Results);
             return resourceList;
         }
     }
