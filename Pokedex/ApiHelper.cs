@@ -1,4 +1,5 @@
 ﻿using Pokedex.PokeApi;
+using Pokedex.PokeApi.Objects;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -17,7 +18,7 @@ namespace Pokedex
             BaseAddress = baseAddress;
         }
 
-        public async Task<NamedAPIResourceList> CallWebAPIAsync(string prefix)
+        public async Task<NamedAPIResourceList> CallWebAPIAsync(string prefix) 
         {
             using (var client = new HttpClient())
             {
@@ -31,6 +32,25 @@ namespace Pokedex
                 if (response.IsSuccessStatusCode)
                 {
                     resourceList = await response.Content.ReadAsAsync<NamedAPIResourceList>();
+                }
+                return resourceList;
+            }
+        }
+
+        public async Task<Pokemon> CallWebAPIAsyncPokemon(string pokemonName)
+        {
+            using (var client = new HttpClient())
+            {
+                Pokemon resourceList = null;
+
+                client.BaseAddress = BaseAddress;
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                //GET Method  
+                HttpResponseMessage response = await client.GetAsync(pokemonName);
+                if (response.IsSuccessStatusCode)
+                {
+                    resourceList = await response.Content.ReadAsAsync<Pokemon>();
                 }
                 return resourceList;
             }

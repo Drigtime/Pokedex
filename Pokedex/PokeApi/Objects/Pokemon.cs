@@ -117,6 +117,7 @@ namespace Pokedex.PokeApi.Objects
 
     public class Pokemon
     {
+
         [JsonProperty("id")]
         public int Id;
 
@@ -167,5 +168,6 @@ namespace Pokedex.PokeApi.Objects
 
         [JsonProperty("types")]
         public List<PokemonType> Types;
+
     }
 }
