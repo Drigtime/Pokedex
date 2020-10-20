@@ -16,6 +16,11 @@ namespace Pokedex.PokeApi
 
         [JsonProperty("url")]
         public Uri Url;
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 
     public class NamedAPIResourceList
