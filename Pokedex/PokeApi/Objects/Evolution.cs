@@ -9,84 +9,84 @@ namespace Pokedex.PokeApi.Objects
     public class EvolutionChain
     {
         [JsonProperty("id")]
-        public int id;
+        public int Id;
 
         [JsonProperty("baby_trigger_item")]
-        public NamedAPIResource babyTriggerItem;
+        public NamedAPIResource BabyTriggerItem;
 
         [JsonProperty("chain")]
-        public ChainLink chain;
+        public ChainLink Chain;
     }
 
     public class ChainLink
     {
         [JsonProperty("is_baby")]
-        public bool isBaby;
+        public bool IsBaby;
 
         [JsonProperty("species")]
-        public NamedAPIResource species;
+        public NamedAPIResource Species;
 
         [JsonProperty("evolution_details")]
-        public List<EvolutionDetail> evolutionDetail;
+        public List<EvolutionDetail> EvolutionDetail;
 
         [JsonProperty("evolves_to")]
-        public List<ChainLink> evolvesTo; 
+        public List<ChainLink> EvolvesTo; 
     }
 
     public class EvolutionDetail
     {
         [JsonProperty("item")]
-        public NamedAPIResource item;
+        public NamedAPIResource Item;
 
         [JsonProperty("trigger")]
-        public NamedAPIResource trigger;
+        public NamedAPIResource Trigger;
 
         [JsonProperty("gender")]
-        public int gender;
+        public int Gender;
 
         [JsonProperty("held_item")]
-        public NamedAPIResource heldItem;
+        public NamedAPIResource HeldItem;
 
         [JsonProperty("known_move")]
-        public NamedAPIResource knownMove;
+        public NamedAPIResource KnownMove;
 
         [JsonProperty("known_move_type")]
-        public NamedAPIResource knownMoveType;
+        public NamedAPIResource KnownMoveType;
 
         [JsonProperty("location")]
-        public NamedAPIResource location;
+        public NamedAPIResource Location;
 
         [JsonProperty("min_level")]
-        public int minLevel;
+        public int MinLevel;
 
         [JsonProperty("min_happiness")]
-        public int minHappiness;
+        public int MinHappiness;
 
         [JsonProperty("min_beauty")]
-        public int minBeauty;
+        public int MinBeauty;
 
         [JsonProperty("min_affection")]
-        public int minAffection;
+        public int MinAffection;
 
         [JsonProperty("needs_overworld_rain")]
-        public bool needsOverworldRain;
+        public bool NeedsOverworldRain;
 
         [JsonProperty("party_species")]
-        public NamedAPIResource partySpecies;
+        public NamedAPIResource PartySpecies;
 
         [JsonProperty("party_type")]
-        public NamedAPIResource partyType;
+        public NamedAPIResource PartyType;
 
         [JsonProperty("relative_physical_stats")]
-        public int relativePhysicalStats;
+        public int RelativePhysicalStats;
 
         [JsonProperty("time_of_day")]
-        public string timeOfDay;
+        public string TimeOfDay;
 
         [JsonProperty("trade_species")]
-        public NamedAPIResource tradeSpecies;
+        public NamedAPIResource TradeSpecies;
 
         [JsonProperty("turn_upside_down")]
-        public bool turnUpsideDown;
+        public bool TurnUpsideDown;
     }
 }
