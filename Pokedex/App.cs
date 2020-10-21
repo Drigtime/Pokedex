@@ -20,7 +20,7 @@ namespace Pokedex
 
         static App()
         {
-            NamedAPIResourceList resourceList = null;
+            NamedAPIResourceList namedAPIResourceList = null;
             Pokemon pokemon = null;
             Application.Init();
 
@@ -101,7 +101,7 @@ namespace Pokedex
             nextButton.Y = Pos.AnchorEnd(1);
 
 
-            var listView = new ListView()
+            var pokemonListView = new ListView()
             {
                 X = 0,
                 Y = 0,
@@ -110,15 +110,15 @@ namespace Pokedex
             };
 
 
-            listView.Initialized += (e, s) =>
+            pokemonListView.Initialized += (e, s) =>
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    resourceList = await SetNamedApiResourceList(listView);
+                    namedAPIResourceList = await SetPokemonListView(pokemonListView);
                 });
             };
 
-            listView.OpenSelectedItem += (e) =>
+            pokemonListView.OpenSelectedItem += (e) =>
             {
                 Application.MainLoop.Invoke(async () =>
                 {
@@ -132,7 +132,7 @@ namespace Pokedex
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    resourceList = await SetNamedApiResourceList(resourceList, listView, Left);
+                    namedAPIResourceList = await SetPokemonListView(namedAPIResourceList, pokemonListView, Left);
                 });
             };
 
@@ -140,17 +140,17 @@ namespace Pokedex
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    resourceList = await SetNamedApiResourceList(resourceList, listView, Right);
+                    namedAPIResourceList = await SetPokemonListView(namedAPIResourceList, pokemonListView, Right);
                 });
             };
 
             pokemonWindow.Add(pokemonNameLabel);
-            pokemonListWindow.Add(previousButton, nextButton, listView);
+            pokemonListWindow.Add(previousButton, nextButton, pokemonListView);
             top.Add(menu, win, pokemonListWindow, pokemonWindow, research, researchLabel, researchButton);
             Application.Run(top);
         }
 
-        private static async Task<NamedAPIResourceList> SetNamedApiResourceList(NamedAPIResourceList namedAPIResourceList, ListView listView, string direction)
+        private static async Task<NamedAPIResourceList> SetPokemonListView(NamedAPIResourceList namedAPIResourceList, ListView listView, string direction)
         {
             Uri uri = direction == Left ? namedAPIResourceList.Previous : namedAPIResourceList.Next;
 
@@ -163,7 +163,7 @@ namespace Pokedex
             return namedAPIResourceList;
         }
 
-        private static async Task<NamedAPIResourceList> SetNamedApiResourceList(ListView listView)
+        private static async Task<NamedAPIResourceList> SetPokemonListView(ListView listView)
         {
             NamedAPIResourceList namedAPIResourceList = await GetNamedApiResourceList();
             listView.SetSource(namedAPIResourceList.Results);
