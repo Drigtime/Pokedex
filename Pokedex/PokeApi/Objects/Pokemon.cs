@@ -4,8 +4,6 @@ using System.Collections.Generic;
 
 namespace Pokedex.PokeApi.Objects
 {
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
-
     public class PokemonAbility
     {
         [JsonProperty("is_hidden")]
@@ -116,7 +114,6 @@ namespace Pokedex.PokeApi.Objects
 
     public class Pokemon
     {
-
         [JsonProperty("id")]
         public int Id;
 

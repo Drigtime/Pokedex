@@ -16,12 +16,12 @@ namespace Pokedex
     {
         private const string Left = "left";
         private const string Right = "right";
+        private static readonly Uri uri = new Uri("https://pokeapi.co");
 
         static App()
         {
             NamedAPIResourceList resourceList = null;
-            Pokemon specsList = null;
-
+            Pokemon pokemon = null;
             Application.Init();
 
             var top = new Toplevel()
@@ -52,7 +52,7 @@ namespace Pokedex
                     }),
                 });
 
-            var list = new Window("List")
+            var pokemonListWindow = new Window("List")
             {
                 X = 0,
                 Y = 6,
@@ -60,7 +60,7 @@ namespace Pokedex
                 Height = Dim.Fill()
             };
 
-            var specs = new Window("Specs")
+            var pokemonWindow = new Window("Pokemon")
             {
                 X = Pos.Percent(50),
                 Y = 6,
@@ -68,12 +68,16 @@ namespace Pokedex
                 Height = Dim.Fill()
             };
 
+            var pokemonNameLabel = new Label("")
+            {
+                X = Pos.Center(),
+                Y = 1
+            };
+
             var researchLabel = new Label("Recherche :")
             {
                 X = 2,
-                Y = 3,
-                Width = 25,
-                Height = 1
+                Y = 3
             };
 
             var research = new TextField("")
@@ -105,28 +109,22 @@ namespace Pokedex
                 Height = Dim.Fill() - 1
             };
 
-            var specsListView = new ListView()
-            {
-                X = 0,
-                Y = 0,
-                Width = Dim.Fill(),
-                Height = Dim.Fill() - 1
-            };
 
             listView.Initialized += (e, s) =>
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    resourceList = await GetNamedApiResourceList(resourceList, listView);
+                    resourceList = await SetNamedApiResourceList(listView);
                 });
             };
 
-            listView.OpenSelectedItem += (e) => 
+            listView.OpenSelectedItem += (e) =>
             {
-                string pokemonName = e.Value.ToString(); 
                 Application.MainLoop.Invoke(async () =>
                 {
-                    specsList = await GetSpecsResourceList(specsList, specsListView, pokemonName);
+                    pokemon = await GetPokemon((NamedAPIResource)e.Value);
+                    pokemonNameLabel.Width = pokemon.Name.Length;
+                    pokemonNameLabel.Text = pokemon.Name;
                 });
             };
 
@@ -134,7 +132,7 @@ namespace Pokedex
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    resourceList = await GetNamedApiResourceList(resourceList, listView, Left);
+                    resourceList = await SetNamedApiResourceList(resourceList, listView, Left);
                 });
             };
 
@@ -142,61 +140,48 @@ namespace Pokedex
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    resourceList = await GetNamedApiResourceList(resourceList, listView, Right);
+                    resourceList = await SetNamedApiResourceList(resourceList, listView, Right);
                 });
             };
 
-            specs.Add(specsListView);
-            list.Add(previousButton, nextButton, listView);
-            top.Add(menu, win, list, specs, research, researchLabel, researchButton);
+            pokemonWindow.Add(pokemonNameLabel);
+            pokemonListWindow.Add(previousButton, nextButton, listView);
+            top.Add(menu, win, pokemonListWindow, pokemonWindow, research, researchLabel, researchButton);
             Application.Run(top);
         }
 
-        private static async Task<NamedAPIResourceList> GetNamedApiResourceList(NamedAPIResourceList resourceList,
-            ListView listView, string direction)
+        private static async Task<NamedAPIResourceList> SetNamedApiResourceList(NamedAPIResourceList namedAPIResourceList, ListView listView, string direction)
         {
-            Uri uri = direction == Left ? resourceList.Previous : resourceList.Next;
+            Uri uri = direction == Left ? namedAPIResourceList.Previous : namedAPIResourceList.Next;
 
             if (uri != null)
             {
-                resourceList = await List($"{uri.Segments[3]}{uri.Query}");
-                listView.SetSource(resourceList.Results);
+                namedAPIResourceList = await GetNamedApiResourceList(uri.PathAndQuery);
+                listView.SetSource(namedAPIResourceList.Results);
             }
 
-            return resourceList;
+            return namedAPIResourceList;
         }
 
-        private static async Task<NamedAPIResourceList> GetNamedApiResourceList(NamedAPIResourceList resourceList,
-            ListView listView)
+        private static async Task<NamedAPIResourceList> SetNamedApiResourceList(ListView listView)
         {
-            resourceList = await List();
-            listView.SetSource(resourceList.Results);
-            return resourceList;
+            NamedAPIResourceList namedAPIResourceList = await GetNamedApiResourceList();
+            listView.SetSource(namedAPIResourceList.Results);
+            return namedAPIResourceList;
         }
 
-        private static async Task<Pokemon> GetSpecsResourceList(Pokemon specsList,
-            ListView specsListView, string pokemonName)
+        static async Task<NamedAPIResourceList> GetNamedApiResourceList(string prefix = "/api/v2/pokemon?limit=20")
         {
-            specsList = await PokemonSpecs(pokemonName);
-            List<string> listSpecs = new List<string>();
-            // ajouter les autres ressources demandé ex: evolution etc..
-            listSpecs.Add(specsList.Name);
-            specsListView.SetSource(listSpecs);
-            return specsList;
-        }
-
-        static async Task<NamedAPIResourceList> List(string prefix = "pokemon?limit=20")
-        {
-            ApiHelper apiHelper = new ApiHelper(new Uri("https://pokeapi.co/api/v2/"));
+            ApiHelper apiHelper = new ApiHelper(uri);
             NamedAPIResourceList resourceList = await apiHelper.CallWebAPIAsync(prefix);
             return resourceList;
         }
 
-        static async Task<Pokemon> PokemonSpecs(string pokemonName)
+        static async Task<Pokemon> GetPokemon(NamedAPIResource namedAPIResource)
         {
-            ApiHelper apiHelper = new ApiHelper(new Uri("https://pokeapi.co/api/v2/"));
-            Pokemon specsList = await apiHelper.CallWebAPIAsyncPokemon("pokemon/" + pokemonName);
-            return specsList;
+            ApiHelper apiHelper = new ApiHelper(uri);
+            Pokemon pokemon = await apiHelper.CallWebAPIAsyncPokemon(namedAPIResource.Url.PathAndQuery);
+            return pokemon;
         }
     }
 }
