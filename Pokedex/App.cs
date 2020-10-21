@@ -165,12 +165,12 @@ namespace Pokedex
 
         private static async Task<NamedAPIResourceList> SetPokemonListView(ListView listView)
         {
-            NamedAPIResourceList namedAPIResourceList = await GetNamedApiResourceList();
+            NamedAPIResourceList namedAPIResourceList = await GetNamedApiResourceList("/api/v2/pokemon?limit=20");
             listView.SetSource(namedAPIResourceList.Results);
             return namedAPIResourceList;
         }
 
-        static async Task<NamedAPIResourceList> GetNamedApiResourceList(string prefix = "/api/v2/pokemon?limit=20")
+        static async Task<NamedAPIResourceList> GetNamedApiResourceList(string prefix)
         {
             ApiHelper apiHelper = new ApiHelper(uri);
             NamedAPIResourceList resourceList = await apiHelper.CallWebAPIAsync(prefix);
