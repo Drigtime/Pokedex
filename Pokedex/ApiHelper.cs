@@ -55,5 +55,24 @@ namespace Pokedex
                 return resourceList;
             }
         }
+
+        public async Task<EvolutionChain> CallWebAPIAsyncEvolutionChain(string pokemonId)
+        {
+            using (var client = new HttpClient())
+            {
+                EvolutionChain resourceList = null;
+
+                client.BaseAddress = BaseAddress;
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                //GET Method  
+                HttpResponseMessage response = await client.GetAsync(pokemonId);
+                if (response.IsSuccessStatusCode)
+                {
+                    resourceList = await response.Content.ReadAsAsync<EvolutionChain>();
+                }
+                return resourceList;
+            }
+        }
     }
 }

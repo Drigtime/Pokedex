@@ -22,6 +22,8 @@ namespace Pokedex
         {
             NamedAPIResourceList namedAPIResourceList = null;
             Pokemon pokemon = null;
+            EvolutionChain evolutionChain = null;
+
             Application.Init();
 
             var top = new Toplevel()
@@ -74,6 +76,12 @@ namespace Pokedex
                 Y = 1
             };
 
+            var pokemonEvolutionLabel = new Label("")
+            {
+                X = Pos.Center(),
+                Y = 3
+            };
+
             var researchLabel = new Label("Recherche :")
             {
                 X = 2,
@@ -120,9 +128,16 @@ namespace Pokedex
 
             pokemonListView.OpenSelectedItem += (e) =>
             {
+                NamedAPIResource eValue = (NamedAPIResource)e.Value;
+
                 Application.MainLoop.Invoke(async () =>
                 {
-                    pokemon = await GetPokemon((NamedAPIResource)e.Value);
+                    evolutionChain = await PokemonEvolution(eValue.Url.Segments[4]);
+                    //modifier pour avoir ttes les evolutions pas que la premiere "[0]"
+                    pokemonEvolutionLabel.Width = evolutionChain.Chain.EvolvesTo[0].Species.Name.Length;
+                    pokemonEvolutionLabel.Text = evolutionChain.Chain.EvolvesTo[0].Species.Name;
+
+                    pokemon = await GetPokemon(eValue);
                     pokemonNameLabel.Width = pokemon.Name.Length;
                     pokemonNameLabel.Text = pokemon.Name;
                 });
@@ -144,7 +159,7 @@ namespace Pokedex
                 });
             };
 
-            pokemonWindow.Add(pokemonNameLabel);
+            pokemonWindow.Add(pokemonNameLabel, pokemonEvolutionLabel);
             pokemonListWindow.Add(previousButton, nextButton, pokemonListView);
             top.Add(menu, win, pokemonListWindow, pokemonWindow, research, researchLabel, researchButton);
             Application.Run(top);
@@ -182,6 +197,13 @@ namespace Pokedex
             ApiHelper apiHelper = new ApiHelper(uri);
             Pokemon pokemon = await apiHelper.CallWebAPIAsyncPokemon(namedAPIResource.Url.PathAndQuery);
             return pokemon;
+        }
+
+        static async Task<EvolutionChain> PokemonEvolution(string id)
+        {
+            ApiHelper apiHelper = new ApiHelper(uri);
+            EvolutionChain evolutionChain = await apiHelper.CallWebAPIAsyncEvolutionChain("/api/v2/evolution-chain/" + id);
+            return evolutionChain;
         }
     }
 }
