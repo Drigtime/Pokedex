@@ -1,5 +1,5 @@
 ﻿using Pokedex.PokeApi;
-using Pokedex.PokeApi.Objects;
+using Pokedex.PokeApi.EndPoints;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;

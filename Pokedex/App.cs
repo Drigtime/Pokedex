@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Terminal.Gui;
 using Pokedex.PokeApi;
-using Pokedex.PokeApi.Objects;
+using Pokedex.PokeApi.EndPoints;
 using System.Collections;
 
 namespace Pokedex

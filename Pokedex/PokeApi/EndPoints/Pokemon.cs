@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Pokedex.PokeApi.Objects
+namespace Pokedex.PokeApi.EndPoints
 {
     public class PokemonAbility
     {

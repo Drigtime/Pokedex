@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 
-namespace Pokedex.PokeApi.Objects
+namespace Pokedex.PokeApi.EndPoints
 {
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
 

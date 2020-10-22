@@ -1,27 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.Json.Serialization;
 
-namespace Pokedex.PokeApi
+namespace Pokedex.PokeApi.EndPoints
 {
     // And this is how you deserialize it in your C# code:
     // NamedAPIResourceList namedAPIResourceList = JsonConvert.DeserializeObject(myJsonResponse); 
-
-    public class NamedAPIResource
-    {
-        [JsonProperty("name")]
-        public string Name;
-
-        [JsonProperty("url")]
-        public Uri Url;
-
-        public override string ToString()
-        {
-            return Name;
-        }
-    }
 
     public class NamedAPIResourceList
     {
