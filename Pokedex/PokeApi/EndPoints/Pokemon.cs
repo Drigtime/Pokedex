@@ -13,7 +13,7 @@ namespace Pokedex.PokeApi.EndPoints
         public int Slot;
 
         [JsonProperty("ability")]
-        public NamedAPIResource Ability;
+        public NamedApiResource Ability;
     }
 
     public class VersionGameIndex
@@ -22,7 +22,7 @@ namespace Pokedex.PokeApi.EndPoints
         public int GameIndex;
 
         [JsonProperty("version")]
-        public NamedAPIResource Version;
+        public NamedApiResource Version;
     }
 
     public class PokemonHeldItemVersion
@@ -31,13 +31,13 @@ namespace Pokedex.PokeApi.EndPoints
         public int Rarity;
 
         [JsonProperty("version")]
-        public NamedAPIResource Version;
+        public NamedApiResource Version;
     }
 
     public class PokemonHeldItem
     {
         [JsonProperty("item")]
-        public NamedAPIResource Item;
+        public NamedApiResource Item;
 
         [JsonProperty("version_details")]
         public List<PokemonHeldItemVersion> VersionDetails;
@@ -49,16 +49,16 @@ namespace Pokedex.PokeApi.EndPoints
         public int LevelLearnedAt;
 
         [JsonProperty("version_group")]
-        public NamedAPIResource VersionGroup;
+        public NamedApiResource VersionGroup;
 
         [JsonProperty("move_learn_method")]
-        public NamedAPIResource MoveLearnMethod;
+        public NamedApiResource MoveLearnMethod;
     }
 
     public class PokemonMove
     {
         [JsonProperty("move")]
-        public NamedAPIResource Move;
+        public NamedApiResource Move;
 
         [JsonProperty("version_group_details")]
         public List<PokemonMoveVersion> VersionGroupDetails;
@@ -100,7 +100,7 @@ namespace Pokedex.PokeApi.EndPoints
         public int Effort;
 
         [JsonProperty("stat")]
-        public NamedAPIResource Stat;
+        public NamedApiResource Stat;
     }
 
     public class PokemonType
@@ -109,7 +109,7 @@ namespace Pokedex.PokeApi.EndPoints
         public int Slot;
 
         [JsonProperty("type")]
-        public NamedAPIResource Type;
+        public NamedApiResource Type;
     }
 
     public class Pokemon
@@ -139,7 +139,7 @@ namespace Pokedex.PokeApi.EndPoints
         public List<PokemonAbility> Abilities;
 
         [JsonProperty("forms")]
-        public List<NamedAPIResource> Forms;
+        public List<NamedApiResource> Forms;
 
         [JsonProperty("game_indices")]
         public List<VersionGameIndex> GameIndices;
@@ -154,7 +154,7 @@ namespace Pokedex.PokeApi.EndPoints
         public List<PokemonMove> Moves;
 
         [JsonProperty("species")]
-        public NamedAPIResource Species;
+        public NamedApiResource Species;
 
         [JsonProperty("sprites")]
         public PokemonSprites Sprites;

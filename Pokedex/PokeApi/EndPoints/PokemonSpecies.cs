@@ -42,31 +42,31 @@ namespace Pokedex.PokeApi.EndPoints
         public bool FormsSwitchable;
 
         [JsonProperty("growth_rate")]
-        public NamedAPIResource GrowthRate;
+        public NamedApiResource GrowthRate;
 
         [JsonProperty("pokedex_numbers")]
         public List<PokemonSpeciesDexEntry> PokedexNumbers;
 
         [JsonProperty("egg_groups")]
-        public NamedAPIResource EggGroups;
+        public NamedApiResource EggGroups;
 
         [JsonProperty("color")]
-        public NamedAPIResource Color;
+        public NamedApiResource Color;
 
         [JsonProperty("shape")]
-        public NamedAPIResource Shape;
+        public NamedApiResource Shape;
 
         [JsonProperty("evolves_from_species")]
-        public NamedAPIResource EvolvesFromSpecies;
+        public NamedApiResource EvolvesFromSpecies;
 
         [JsonProperty("evolution_chain")]
-        public APIResource EvolutionChain;
+        public ApiResource EvolutionChain;
 
         [JsonProperty("habitat")]
-        public NamedAPIResource habitat;
+        public NamedApiResource Habitat;
 
         [JsonProperty("generation")]
-        public NamedAPIResource Generation;
+        public NamedApiResource Generation;
 
         [JsonProperty("names")]
         public List<Name> Names;
@@ -93,7 +93,7 @@ namespace Pokedex.PokeApi.EndPoints
         public string Text;
 
         [JsonProperty("language")]
-        public NamedAPIResource Language;
+        public NamedApiResource Language;
     }
 
     public class PokemonSpeciesDexEntry
@@ -102,7 +102,7 @@ namespace Pokedex.PokeApi.EndPoints
         public int EntryNumber;
 
         [JsonProperty("pokedex")]
-        public NamedAPIResource Pokedex;
+        public NamedApiResource Pokedex;
     }
 
     public class PalParkEncounterArea
@@ -114,7 +114,7 @@ namespace Pokedex.PokeApi.EndPoints
         public int Rate;
 
         [JsonProperty("area")]
-        public NamedAPIResource Area;
+        public NamedApiResource Area;
     }
 
     public class PokemonSpeciesVariety
@@ -124,6 +124,6 @@ namespace Pokedex.PokeApi.EndPoints
         public bool IsDefault;
 
         [JsonProperty("pokemon")]
-        public NamedAPIResource Pokemon;
+        public NamedApiResource Pokemon;
     }
 }

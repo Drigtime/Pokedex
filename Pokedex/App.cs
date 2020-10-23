@@ -1,14 +1,7 @@
-﻿using Microsoft.VisualBasic;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System;
 using System.Threading.Tasks;
 using Terminal.Gui;
-using Pokedex.PokeApi;
 using Pokedex.PokeApi.EndPoints;
-using System.Collections;
 
 namespace Pokedex
 {
@@ -16,13 +9,12 @@ namespace Pokedex
     {
         private const string Left = "left";
         private const string Right = "right";
-        private static readonly Uri uri = new Uri("https://pokeapi.co");
+        private static readonly Uri Uri = new Uri("https://pokeapi.co");
+        private static readonly ApiHelper ApiHelper = new ApiHelper(Uri);
 
         static App()
         {
-            NamedAPIResourceList namedAPIResourceList = null;
-            Pokemon pokemon = null;
-            EvolutionChain evolutionChain = null;
+            NamedApiResourceList namedApiResourceList = null;
 
             Application.Init();
 
@@ -43,7 +35,7 @@ namespace Pokedex
             };
 
             var menu = new MenuBar(
-                new MenuBarItem[]
+                new[]
                 {
                     //new MenuBarItem ("_File", new MenuItem [] {
                     new MenuBarItem("_Quit", "", () =>
@@ -96,13 +88,9 @@ namespace Pokedex
                 Height = 1
             };
 
-            var researchButton = new Button("Rechercher");
-            researchButton.X = Pos.Right(research) + 1;
-            researchButton.Y = 4;
+            var researchButton = new Button("Search") {X = Pos.Right(research) + 1, Y = 4};
 
-            var previousButton = new Button("Previous");
-            previousButton.X = 0;
-            previousButton.Y = Pos.AnchorEnd(1);
+            var previousButton = new Button("Previous") {X = 0, Y = Pos.AnchorEnd(1)};
 
             var nextButton = new Button("Next");
             nextButton.X = Pos.AnchorEnd() - (Pos.Right(nextButton) - Pos.Left(nextButton));
@@ -122,22 +110,23 @@ namespace Pokedex
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    namedAPIResourceList = await SetPokemonListView(pokemonListView);
+                    namedApiResourceList = await SetPokemonListView(pokemonListView);
                 });
             };
 
             pokemonListView.OpenSelectedItem += (e) =>
             {
-                NamedAPIResource eValue = (NamedAPIResource)e.Value;
+                NamedApiResource namedApiResource = (NamedApiResource) e.Value;
 
                 Application.MainLoop.Invoke(async () =>
                 {
-                    evolutionChain = await PokemonEvolution(eValue.Url.Segments[4]);
-                    //modifier pour avoir ttes les evolutions pas que la premiere "[0]"
+                    Pokemon pokemon = await GetPokemon(namedApiResource.Url.Segments[4]);
+                    PokemonSpecies pokemonSpecies = await GetPokemonSpecies(pokemon.Species.Url.Segments[4]);
+                    EvolutionChain evolutionChain = await GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url.Segments[4]);
+
                     pokemonEvolutionLabel.Width = evolutionChain.Chain.EvolvesTo[0].Species.Name.Length;
                     pokemonEvolutionLabel.Text = evolutionChain.Chain.EvolvesTo[0].Species.Name;
 
-                    pokemon = await GetPokemon(eValue);
                     pokemonNameLabel.Width = pokemon.Name.Length;
                     pokemonNameLabel.Text = pokemon.Name;
                 });
@@ -147,7 +136,8 @@ namespace Pokedex
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    namedAPIResourceList = await SetPokemonListView(namedAPIResourceList, pokemonListView, Left);
+                    namedApiResourceList =
+                        await SetPokemonListView(namedApiResourceList, pokemonListView, Left);
                 });
             };
 
@@ -155,7 +145,8 @@ namespace Pokedex
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    namedAPIResourceList = await SetPokemonListView(namedAPIResourceList, pokemonListView, Right);
+                    namedApiResourceList =
+                        await SetPokemonListView(namedApiResourceList, pokemonListView, Right);
                 });
             };
 
@@ -165,45 +156,45 @@ namespace Pokedex
             Application.Run(top);
         }
 
-        private static async Task<NamedAPIResourceList> SetPokemonListView(NamedAPIResourceList namedAPIResourceList, ListView listView, string direction)
+        private static async Task<NamedApiResourceList> SetPokemonListView(NamedApiResourceList namedApiResourceList,
+            ListView listView, string direction)
         {
-            Uri uri = direction == Left ? namedAPIResourceList.Previous : namedAPIResourceList.Next;
+            Uri uri = direction == Left ? namedApiResourceList.Previous : namedApiResourceList.Next;
 
             if (uri != null)
             {
-                namedAPIResourceList = await GetNamedApiResourceList(uri.PathAndQuery);
-                listView.SetSource(namedAPIResourceList.Results);
+                namedApiResourceList = await GetNamedApiResourceList(uri.PathAndQuery);
+                await listView.SetSourceAsync(namedApiResourceList.Results);
             }
 
-            return namedAPIResourceList;
+            return namedApiResourceList;
         }
 
-        private static async Task<NamedAPIResourceList> SetPokemonListView(ListView listView)
+        private static async Task<NamedApiResourceList> SetPokemonListView(ListView listView)
         {
-            NamedAPIResourceList namedAPIResourceList = await GetNamedApiResourceList("/api/v2/pokemon?limit=20");
-            listView.SetSource(namedAPIResourceList.Results);
-            return namedAPIResourceList;
+            NamedApiResourceList namedApiResourceList = await GetNamedApiResourceList("/api/v2/pokemon?limit=20");
+            await listView.SetSourceAsync(namedApiResourceList.Results);
+            return namedApiResourceList;
         }
 
-        static async Task<NamedAPIResourceList> GetNamedApiResourceList(string prefix)
+        static async Task<NamedApiResourceList> GetNamedApiResourceList(string prefix)
         {
-            ApiHelper apiHelper = new ApiHelper(uri);
-            NamedAPIResourceList resourceList = await apiHelper.CallWebAPIAsync(prefix);
-            return resourceList;
+            return await ApiHelper.CallWebApiAsync(prefix);
         }
 
-        static async Task<Pokemon> GetPokemon(NamedAPIResource namedAPIResource)
+        static async Task<Pokemon> GetPokemon(string id)
         {
-            ApiHelper apiHelper = new ApiHelper(uri);
-            Pokemon pokemon = await apiHelper.CallWebAPIAsyncPokemon(namedAPIResource.Url.PathAndQuery);
-            return pokemon;
+            return await ApiHelper.CallWebApiAsyncPokemon(id);
         }
 
-        static async Task<EvolutionChain> PokemonEvolution(string id)
+        static async Task<PokemonSpecies> GetPokemonSpecies(string id)
         {
-            ApiHelper apiHelper = new ApiHelper(uri);
-            EvolutionChain evolutionChain = await apiHelper.CallWebAPIAsyncEvolutionChain("/api/v2/evolution-chain/" + id);
-            return evolutionChain;
+            return await ApiHelper.CallWebApiAsyncPokemonSpecies(id);
+        }
+
+        static async Task<EvolutionChain> GetPokemonEvolution(string id)
+        {
+            return await ApiHelper.CallWebApiAsyncEvolutionChain(id);
         }
     }
 }

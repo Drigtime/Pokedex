@@ -1,13 +1,10 @@
-﻿using Pokedex.PokeApi;
-using System;
-using System.Threading.Tasks;
-using Terminal.Gui;
+﻿using Terminal.Gui;
 
 namespace Pokedex
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
             Application.Run<App>();
         }

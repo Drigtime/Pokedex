@@ -3,13 +3,13 @@ using System;
 
 namespace Pokedex.PokeApi.EndPoints
 {
-    public class APIResource
+    public class ApiResource
     {
         [JsonProperty("url")]
-        public string Url;
+        public Uri Url;
     }
 
-    public class NamedAPIResource
+    public class NamedApiResource
     {
         [JsonProperty("name")]
         public string Name;
@@ -29,7 +29,7 @@ namespace Pokedex.PokeApi.EndPoints
         public string Text;
 
         [JsonProperty("language")]
-        public NamedAPIResource Language;
+        public NamedApiResource Language;
     }
 
     public class FlavorText
@@ -38,10 +38,10 @@ namespace Pokedex.PokeApi.EndPoints
         public string Text;
 
         [JsonProperty("language")]
-        public NamedAPIResource Language;
+        public NamedApiResource Language;
 
         [JsonProperty("version")]
-        public NamedAPIResource Version;
+        public NamedApiResource Version;
     }
 
     public class Description
@@ -50,6 +50,6 @@ namespace Pokedex.PokeApi.EndPoints
         public string Text;
 
         [JsonProperty("language")]
-        public NamedAPIResource Language;
+        public NamedApiResource Language;
     }
 }

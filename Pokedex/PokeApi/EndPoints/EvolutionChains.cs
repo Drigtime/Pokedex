@@ -11,7 +11,7 @@ namespace Pokedex.PokeApi.EndPoints
         public int Id;
 
         [JsonProperty("baby_trigger_item")]
-        public NamedAPIResource BabyTriggerItem;
+        public NamedApiResource BabyTriggerItem;
 
         [JsonProperty("chain")]
         public ChainLink Chain;
@@ -23,7 +23,7 @@ namespace Pokedex.PokeApi.EndPoints
         public bool IsBaby;
 
         [JsonProperty("species")]
-        public NamedAPIResource Species;
+        public NamedApiResource Species;
 
         [JsonProperty("evolution_details")]
         public List<EvolutionDetail> EvolutionDetail;
@@ -35,25 +35,25 @@ namespace Pokedex.PokeApi.EndPoints
     public class EvolutionDetail
     {
         [JsonProperty("item")]
-        public NamedAPIResource Item;
+        public NamedApiResource Item;
 
         [JsonProperty("trigger")]
-        public NamedAPIResource Trigger;
+        public NamedApiResource Trigger;
 
         [JsonProperty("gender", NullValueHandling = NullValueHandling.Ignore)]
         public int Gender;
 
         [JsonProperty("held_item", NullValueHandling = NullValueHandling.Ignore)]
-        public NamedAPIResource HeldItem;
+        public NamedApiResource HeldItem;
 
         [JsonProperty("known_move", NullValueHandling = NullValueHandling.Ignore)]
-        public NamedAPIResource KnownMove;
+        public NamedApiResource KnownMove;
 
         [JsonProperty("known_move_type", NullValueHandling = NullValueHandling.Ignore)]
-        public NamedAPIResource KnownMoveType;
+        public NamedApiResource KnownMoveType;
 
         [JsonProperty("location", NullValueHandling = NullValueHandling.Ignore)]
-        public NamedAPIResource Location;
+        public NamedApiResource Location;
 
         [JsonProperty("min_level", NullValueHandling = NullValueHandling.Ignore)]
         public int MinLevel;
@@ -71,10 +71,10 @@ namespace Pokedex.PokeApi.EndPoints
         public bool NeedsOverworldRain;
 
         [JsonProperty("party_species", NullValueHandling = NullValueHandling.Ignore)]
-        public NamedAPIResource PartySpecies;
+        public NamedApiResource PartySpecies;
 
         [JsonProperty("party_type", NullValueHandling = NullValueHandling.Ignore)]
-        public NamedAPIResource PartyType;
+        public NamedApiResource PartyType;
 
         [JsonProperty("relative_physical_stats", NullValueHandling = NullValueHandling.Ignore)]
         public int RelativePhysicalStats;
@@ -83,7 +83,7 @@ namespace Pokedex.PokeApi.EndPoints
         public string TimeOfDay;
 
         [JsonProperty("trade_species", NullValueHandling = NullValueHandling.Ignore)]
-        public NamedAPIResource TradeSpecies;
+        public NamedApiResource TradeSpecies;
 
         [JsonProperty("turn_upside_down", NullValueHandling = NullValueHandling.Ignore)]
         public bool TurnUpsideDown;
