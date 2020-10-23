@@ -26,7 +26,7 @@ namespace Pokedex.PokeApi.EndPoints
     public class Name
     {
         [JsonProperty("name")]
-        public string Name;
+        public string Text;
 
         [JsonProperty("language")]
         public NamedAPIResource Language;
@@ -35,7 +35,7 @@ namespace Pokedex.PokeApi.EndPoints
     public class FlavorText
     {
         [JsonProperty("flavor_text")]
-        public string FlavorText;
+        public string Text;
 
         [JsonProperty("language")]
         public NamedAPIResource Language;
@@ -47,7 +47,7 @@ namespace Pokedex.PokeApi.EndPoints
     public class Description
     {
         [JsonProperty("description")]
-        public string Description;
+        public string Text;
 
         [JsonProperty("language")]
         public NamedAPIResource Language;

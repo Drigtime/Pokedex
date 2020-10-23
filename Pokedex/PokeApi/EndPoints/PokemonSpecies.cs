@@ -90,7 +90,7 @@ namespace Pokedex.PokeApi.EndPoints
     public class Genus
     {
         [JsonProperty("genus")]
-        public string Genus;
+        public string Text;
 
         [JsonProperty("language")]
         public NamedAPIResource Language;
