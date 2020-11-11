@@ -14,6 +14,11 @@ namespace Pokedex.PokeApi.EndPoints
 
         [JsonProperty("ability")]
         public NamedApiResource Ability;
+
+        public override string ToString()
+        {
+            return Ability.ToString();
+        }
     }
 
     public class VersionGameIndex
@@ -62,6 +67,11 @@ namespace Pokedex.PokeApi.EndPoints
 
         [JsonProperty("version_group_details")]
         public List<PokemonMoveVersion> VersionGroupDetails;
+
+        public override string ToString()
+        {
+            return Move.ToString();
+        }
     }
 
     public class PokemonSprites
@@ -110,6 +120,11 @@ namespace Pokedex.PokeApi.EndPoints
 
         [JsonProperty("type")]
         public NamedApiResource Type;
+
+        public override string ToString()
+        {
+            return Type.ToString();
+        }
     }
 
     public class Pokemon

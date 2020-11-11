@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Terminal.Gui;
 using Pokedex.PokeApi.EndPoints;
@@ -64,8 +65,26 @@ namespace Pokedex
 
             var pokemonNameLabel = new Label("")
             {
-                X = Pos.Center(),
+                X = 15,
                 Y = 1
+            };
+
+            var pokemonSizeLabel = new Label("")
+            {
+                X = 15,
+                Y = 3
+            };
+
+            var pokemonWeightLabel = new Label("")
+            {
+                X = 15,
+                Y = 4
+            };
+
+            var pokemonDescriptionLabel = new Label("")
+            {
+                X = 12,
+                Y = 6
             };
 
             var researchLabel = new Label("Recherche :")
@@ -89,7 +108,7 @@ namespace Pokedex
             var nextButton = new Button("Next");
             nextButton.X = Pos.AnchorEnd() - (Pos.Right(nextButton) - Pos.Left(nextButton));
             nextButton.Y = Pos.AnchorEnd(1);
-            
+
             var pokemonListView = new ListView()
             {
                 X = 0,
@@ -105,7 +124,31 @@ namespace Pokedex
                 Width = 10,
                 Height = 3
             };
-            
+
+            var pokemonAbilitiesListView = new ListView()
+            {
+                X = 1,
+                Y = 5,
+                Width = 10,
+                Height = 3
+            };
+
+            var pokemonMovesListView = new ListView()
+            {
+                X = 1,
+                Y = 10,
+                Width = 10,
+                Height = 5
+            };
+
+            var pokemonLocationAreaEncountersListView = new ListView()
+            {
+                X = 12,
+                Y = 10,
+                Width = 20,
+                Height = 5
+            };
+
             pokemonListView.Initialized += (e, s) =>
             {
                 Application.MainLoop.Invoke(async () =>
@@ -114,13 +157,14 @@ namespace Pokedex
                 });
             };
 
-            pokemonListView.OpenSelectedItem += (e) =>
+            void OnPokemonListViewOnOpenSelectedItem(ListViewItemEventArgs e)
             {
                 NamedApiResource namedApiResource = (NamedApiResource) e.Value;
 
                 Application.MainLoop.Invoke(async () =>
                 {
-                    Pokemon pokemon = await GetPokemon(namedApiResource.Url);
+                    Pokemon pokemon = await GetPokemon(new Uri($"{BaseAddress}/api/v2/pokemon/{namedApiResource.Name}"));
+                    List<LocationAreaEncounter> pokemonLocationAreaEncounters = await GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters);
                     PokemonSpecies pokemonSpecies = await GetPokemonSpecies(pokemon.Species.Url);
                     EvolutionChain evolutionChain = await GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url);
 
@@ -138,11 +182,31 @@ namespace Pokedex
                     } while (chainLink.EvolvesTo.Count > 0);
 
                     await pokemonEvolutionListView.SetSourceAsync(organizedEvolutionChain);
+                    await pokemonLocationAreaEncountersListView.SetSourceAsync(pokemonLocationAreaEncounters);
+                    await pokemonAbilitiesListView.SetSourceAsync(pokemon.Abilities);
+                    await pokemonMovesListView.SetSourceAsync(pokemon.Moves);
 
-                    pokemonNameLabel.Width = pokemon.Name.Length;
-                    pokemonNameLabel.Text = pokemon.Name;
+                    string nameLabel = $"#{pokemon.Id} {pokemon.Name} - {String.Join("/", pokemon.Types)}";
+                    string description = pokemonSpecies.FlavorTextEntries.First(text => text.Language.Name == "fr").Text;
+                    string height = $"Height: {pokemon.Height.ToString()}";
+                    string weight = $"Weight: {pokemon.Weight.ToString()}";
+
+                    pokemonNameLabel.Width = nameLabel.Length;
+                    pokemonNameLabel.Text = nameLabel;
+
+                    pokemonSizeLabel.Width = height.Length;
+                    pokemonSizeLabel.Text = height;
+
+                    pokemonWeightLabel.Width = weight.Length;
+                    pokemonWeightLabel.Text = weight;
+
+                    pokemonDescriptionLabel.Width = description.Length;
+                    pokemonDescriptionLabel.Text = description;
                 });
-            };
+            }
+
+            pokemonListView.OpenSelectedItem += OnPokemonListViewOnOpenSelectedItem;
+            pokemonEvolutionListView.OpenSelectedItem += OnPokemonListViewOnOpenSelectedItem;
 
             previousButton.Clicked += () =>
             {
@@ -162,7 +226,9 @@ namespace Pokedex
                 });
             };
 
-            pokemonWindow.Add(pokemonNameLabel, pokemonEvolutionListView);
+            pokemonWindow.Add(pokemonNameLabel, pokemonDescriptionLabel, pokemonEvolutionListView,
+                pokemonAbilitiesListView, pokemonMovesListView, pokemonLocationAreaEncountersListView, pokemonSizeLabel,
+                pokemonWeightLabel);
             pokemonListWindow.Add(previousButton, nextButton, pokemonListView);
             top.Add(menu, win, pokemonListWindow, pokemonWindow, research, researchLabel, researchButton);
             Application.Run(top);
@@ -184,7 +250,8 @@ namespace Pokedex
 
         private static async Task<NamedApiResourceList> SetPokemonListView(ListView listView)
         {
-            NamedApiResourceList namedApiResourceList = await GetNamedApiResourceList(new Uri($"{BaseAddress}/api/v2/pokemon?limit=20"));
+            NamedApiResourceList namedApiResourceList =
+                await GetNamedApiResourceList(new Uri($"{BaseAddress}/api/v2/pokemon?limit=20"));
             await listView.SetSourceAsync(namedApiResourceList.Results);
             return namedApiResourceList;
         }
@@ -197,6 +264,11 @@ namespace Pokedex
         static async Task<Pokemon> GetPokemon(Uri uri)
         {
             return await ApiHelper<Pokemon>.GenericCallWebApiAsync(uri);
+        }
+
+        static async Task<List<LocationAreaEncounter>> GetPokemonLocationAreaEncounters(Uri uri)
+        {
+            return await ApiHelper<List<LocationAreaEncounter>>.GenericCallWebApiAsync(uri);
         }
 
         static async Task<PokemonSpecies> GetPokemonSpecies(Uri uri)
