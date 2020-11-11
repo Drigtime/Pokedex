@@ -12,6 +12,7 @@ namespace Pokedex
             using var client = new HttpClient();
             T resourceList = default;
 
+            // client.DefaultRequestHeaders.CacheControl.Public = true;
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             //GET Method  

@@ -28,6 +28,11 @@ namespace Pokedex.PokeApi.EndPoints
 
         [JsonProperty("evolves_to")]
         public List<ChainLink> EvolvesTo;
+
+        public override string ToString()
+        {
+            return Species.ToString();
+        }
     }
 
     public class EvolutionDetail

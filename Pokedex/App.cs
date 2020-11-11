@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Terminal.Gui;
 using Pokedex.PokeApi.EndPoints;
@@ -67,12 +68,6 @@ namespace Pokedex
                 Y = 1
             };
 
-            var pokemonEvolutionLabel = new Label("")
-            {
-                X = Pos.Center(),
-                Y = 3
-            };
-
             var researchLabel = new Label("Recherche :")
             {
                 X = 2,
@@ -94,8 +89,7 @@ namespace Pokedex
             var nextButton = new Button("Next");
             nextButton.X = Pos.AnchorEnd() - (Pos.Right(nextButton) - Pos.Left(nextButton));
             nextButton.Y = Pos.AnchorEnd(1);
-
-
+            
             var pokemonListView = new ListView()
             {
                 X = 0,
@@ -104,7 +98,14 @@ namespace Pokedex
                 Height = Dim.Fill() - 1
             };
 
-
+            var pokemonEvolutionListView = new ListView()
+            {
+                X = 1,
+                Y = 1,
+                Width = 10,
+                Height = 3
+            };
+            
             pokemonListView.Initialized += (e, s) =>
             {
                 Application.MainLoop.Invoke(async () =>
@@ -121,11 +122,22 @@ namespace Pokedex
                 {
                     Pokemon pokemon = await GetPokemon(namedApiResource.Url);
                     PokemonSpecies pokemonSpecies = await GetPokemonSpecies(pokemon.Species.Url);
-                    EvolutionChain evolutionChain =
-                        await GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url);
+                    EvolutionChain evolutionChain = await GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url);
 
-                    pokemonEvolutionLabel.Width = evolutionChain.Chain.EvolvesTo[0].Species.Name.Length;
-                    pokemonEvolutionLabel.Text = evolutionChain.Chain.EvolvesTo[0].Species.Name;
+                    var organizedEvolutionChain = new List<NamedApiResource>();
+                    ChainLink chainLink = evolutionChain.Chain;
+
+                    do
+                    {
+                        organizedEvolutionChain.Add(chainLink.Species);
+                        chainLink = chainLink.EvolvesTo[0];
+                        if (chainLink.EvolvesTo.Count == 0)
+                        {
+                            organizedEvolutionChain.Add(chainLink.Species);
+                        }
+                    } while (chainLink.EvolvesTo.Count > 0);
+
+                    await pokemonEvolutionListView.SetSourceAsync(organizedEvolutionChain);
 
                     pokemonNameLabel.Width = pokemon.Name.Length;
                     pokemonNameLabel.Text = pokemon.Name;
@@ -150,7 +162,7 @@ namespace Pokedex
                 });
             };
 
-            pokemonWindow.Add(pokemonNameLabel, pokemonEvolutionLabel);
+            pokemonWindow.Add(pokemonNameLabel, pokemonEvolutionListView);
             pokemonListWindow.Add(previousButton, nextButton, pokemonListView);
             top.Add(menu, win, pokemonListWindow, pokemonWindow, research, researchLabel, researchButton);
             Application.Run(top);
@@ -172,8 +184,7 @@ namespace Pokedex
 
         private static async Task<NamedApiResourceList> SetPokemonListView(ListView listView)
         {
-            NamedApiResourceList namedApiResourceList =
-                await GetNamedApiResourceList(new Uri($"{BaseAddress}/api/v2/pokemon?limit=20"));
+            NamedApiResourceList namedApiResourceList = await GetNamedApiResourceList(new Uri($"{BaseAddress}/api/v2/pokemon?limit=20"));
             await listView.SetSourceAsync(namedApiResourceList.Results);
             return namedApiResourceList;
         }
