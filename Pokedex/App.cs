@@ -9,8 +9,7 @@ namespace Pokedex
     {
         private const string Left = "left";
         private const string Right = "right";
-        private static readonly Uri Uri = new Uri("https://pokeapi.co");
-        private static readonly ApiHelper ApiHelper = new ApiHelper(Uri);
+        private static readonly Uri BaseAddress = new Uri("https://pokeapi.co");
 
         static App()
         {
@@ -120,9 +119,10 @@ namespace Pokedex
 
                 Application.MainLoop.Invoke(async () =>
                 {
-                    Pokemon pokemon = await GetPokemon(namedApiResource.Url.Segments[4]);
-                    PokemonSpecies pokemonSpecies = await GetPokemonSpecies(pokemon.Species.Url.Segments[4]);
-                    EvolutionChain evolutionChain = await GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url.Segments[4]);
+                    Pokemon pokemon = await GetPokemon(namedApiResource.Url);
+                    PokemonSpecies pokemonSpecies = await GetPokemonSpecies(pokemon.Species.Url);
+                    EvolutionChain evolutionChain =
+                        await GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url);
 
                     pokemonEvolutionLabel.Width = evolutionChain.Chain.EvolvesTo[0].Species.Name.Length;
                     pokemonEvolutionLabel.Text = evolutionChain.Chain.EvolvesTo[0].Species.Name;
@@ -163,7 +163,7 @@ namespace Pokedex
 
             if (uri != null)
             {
-                namedApiResourceList = await GetNamedApiResourceList(uri.PathAndQuery);
+                namedApiResourceList = await GetNamedApiResourceList(uri);
                 await listView.SetSourceAsync(namedApiResourceList.Results);
             }
 
@@ -172,29 +172,30 @@ namespace Pokedex
 
         private static async Task<NamedApiResourceList> SetPokemonListView(ListView listView)
         {
-            NamedApiResourceList namedApiResourceList = await GetNamedApiResourceList("/api/v2/pokemon?limit=20");
+            NamedApiResourceList namedApiResourceList =
+                await GetNamedApiResourceList(new Uri($"{BaseAddress}/api/v2/pokemon?limit=20"));
             await listView.SetSourceAsync(namedApiResourceList.Results);
             return namedApiResourceList;
         }
 
-        static async Task<NamedApiResourceList> GetNamedApiResourceList(string prefix)
+        static async Task<NamedApiResourceList> GetNamedApiResourceList(Uri uri)
         {
-            return await ApiHelper.CallWebApiAsync(prefix);
+            return await ApiHelper<NamedApiResourceList>.GenericCallWebApiAsync(uri);
         }
 
-        static async Task<Pokemon> GetPokemon(string id)
+        static async Task<Pokemon> GetPokemon(Uri uri)
         {
-            return await ApiHelper.CallWebApiAsyncPokemon(id);
+            return await ApiHelper<Pokemon>.GenericCallWebApiAsync(uri);
         }
 
-        static async Task<PokemonSpecies> GetPokemonSpecies(string id)
+        static async Task<PokemonSpecies> GetPokemonSpecies(Uri uri)
         {
-            return await ApiHelper.CallWebApiAsyncPokemonSpecies(id);
+            return await ApiHelper<PokemonSpecies>.GenericCallWebApiAsync(uri);
         }
 
-        static async Task<EvolutionChain> GetPokemonEvolution(string id)
+        static async Task<EvolutionChain> GetPokemonEvolution(Uri uri)
         {
-            return await ApiHelper.CallWebApiAsyncEvolutionChain(id);
+            return await ApiHelper<EvolutionChain>.GenericCallWebApiAsync(uri);
         }
     }
 }

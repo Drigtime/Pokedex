@@ -48,7 +48,7 @@ namespace Pokedex.PokeApi.EndPoints
         public List<PokemonSpeciesDexEntry> PokedexNumbers;
 
         [JsonProperty("egg_groups")]
-        public NamedApiResource EggGroups;
+        public List<NamedApiResource> EggGroups;
 
         [JsonProperty("color")]
         public NamedApiResource Color;

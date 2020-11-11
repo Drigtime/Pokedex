@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 namespace Pokedex.PokeApi.EndPoints
 {
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
-
     public class EvolutionChain
     {
         [JsonProperty("id")]

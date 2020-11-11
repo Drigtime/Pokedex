@@ -4,9 +4,6 @@ using System.Collections.Generic;
 
 namespace Pokedex.PokeApi.EndPoints
 {
-    // And this is how you deserialize it in your C# code:
-    // NamedAPIResourceList namedAPIResourceList = JsonConvert.DeserializeObject(myJsonResponse); 
-
     public class NamedApiResourceList
     {
         [JsonProperty("count")]
