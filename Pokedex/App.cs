@@ -163,7 +163,7 @@ namespace Pokedex
 
                 Application.MainLoop.Invoke(async () =>
                 {
-                    Pokemon pokemon = await GetPokemon(new Uri($"{BaseAddress}/api/v2/pokemon/{namedApiResource.Name}"));
+                    Pokemon pokemon = await GetPokemon(new Uri(BaseAddress, $"api/v2/pokemon/{namedApiResource.Name}"));
                     List<LocationAreaEncounter> pokemonLocationAreaEncounters = await GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters);
                     PokemonSpecies pokemonSpecies = await GetPokemonSpecies(pokemon.Species.Url);
                     EvolutionChain evolutionChain = await GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url);
@@ -251,7 +251,7 @@ namespace Pokedex
         private static async Task<NamedApiResourceList> SetPokemonListView(ListView listView)
         {
             NamedApiResourceList namedApiResourceList =
-                await GetNamedApiResourceList(new Uri($"{BaseAddress}/api/v2/pokemon?limit=20"));
+                await GetNamedApiResourceList(new Uri(BaseAddress, $"api/v2/pokemon?limit=20"));
             await listView.SetSourceAsync(namedApiResourceList.Results);
             return namedApiResourceList;
         }
