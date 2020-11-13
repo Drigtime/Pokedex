@@ -55,60 +55,6 @@ namespace Pokedex
                 Height = Dim.Fill()
             };
 
-            var pokemonWindow = new Window("Pokemon")
-            {
-                X = Pos.Percent(50),
-                Y = 6,
-                Width = Dim.Percent(50),
-                Height = Dim.Fill()
-            };
-
-            var pokemonNameLabel = new Label("")
-            {
-                X = 15,
-                Y = 1
-            };
-
-            var pokemonSizeLabel = new Label("")
-            {
-                X = 15,
-                Y = 3
-            };
-
-            var pokemonWeightLabel = new Label("")
-            {
-                X = 15,
-                Y = 4
-            };
-
-            var pokemonDescriptionLabel = new Label("")
-            {
-                X = 12,
-                Y = 6
-            };
-
-            var researchLabel = new Label("Recherche :")
-            {
-                X = 2,
-                Y = 3
-            };
-
-            var research = new TextField("")
-            {
-                X = 2,
-                Y = 4,
-                Width = 25,
-                Height = 1
-            };
-
-            var researchButton = new Button("Search") {X = Pos.Right(research) + 1, Y = 4};
-
-            var previousButton = new Button("Previous") {X = 0, Y = Pos.AnchorEnd(1)};
-
-            var nextButton = new Button("Next");
-            nextButton.X = Pos.AnchorEnd() - (Pos.Right(nextButton) - Pos.Left(nextButton));
-            nextButton.Y = Pos.AnchorEnd(1);
-
             var pokemonListView = new ListView()
             {
                 X = 0,
@@ -117,37 +63,64 @@ namespace Pokedex
                 Height = Dim.Fill() - 1
             };
 
+            var pokemonWindow = new Window("Pokemon")
+            {
+                X = Pos.Percent(50),
+                Y = 6,
+                Width = Dim.Percent(50),
+                Height = Dim.Fill()
+            };
+
+            var pokemonNameTextView = new TextView()
+            {
+                ReadOnly = true,
+                X = Pos.Center(),
+                Y = 1,
+                Height = 1
+            };
+
+            var pokemonTypeTextView = new TextView()
+            {
+                ReadOnly = true,
+                X = Pos.Center(),
+                Y = Pos.Bottom(pokemonNameTextView)+1,
+                Height = 1
+            };
+
+            var pokemonDescriptionTextView = new TextView()
+            {
+                ReadOnly = true,
+                X = Pos.Center(),
+                Y = Pos.Bottom(pokemonTypeTextView)+1,
+            };
+
             var pokemonEvolutionListView = new ListView()
             {
-                X = 1,
-                Y = 1,
-                Width = 10,
-                Height = 3
+                X = Pos.Center(),
+                Y = Pos.Bottom(pokemonDescriptionTextView)+1,
             };
 
-            var pokemonAbilitiesListView = new ListView()
+            var researchLabel = new Label("Recherche :")
             {
-                X = 1,
-                Y = 5,
-                Width = 10,
-                Height = 3
+                X = 2,
+                Y = 3
             };
 
-            var pokemonMovesListView = new ListView()
+            var researchTextField = new TextField("")
             {
-                X = 1,
-                Y = 10,
-                Width = 10,
-                Height = 5
+                X = 2,
+                Y = 4,
+                Width = 25,
+                Height = 1
             };
 
-            var pokemonLocationAreaEncountersListView = new ListView()
-            {
-                X = 12,
-                Y = 10,
-                Width = 20,
-                Height = 5
-            };
+            var researchButton = new Button("Search") {X = Pos.Right(researchTextField) + 1, Y = 4};
+
+            var previousButton = new Button("Previous") {X = 0, Y = Pos.AnchorEnd(1)};
+
+            var nextButton = new Button("Next");
+            nextButton.X = Pos.AnchorEnd() - (Pos.Right(nextButton) - Pos.Left(nextButton));
+            nextButton.Y = Pos.AnchorEnd(1);
 
             pokemonListView.Initialized += (e, s) =>
             {
@@ -182,26 +155,38 @@ namespace Pokedex
                     } while (chainLink.EvolvesTo.Count > 0);
 
                     await pokemonEvolutionListView.SetSourceAsync(organizedEvolutionChain);
-                    await pokemonLocationAreaEncountersListView.SetSourceAsync(pokemonLocationAreaEncounters);
-                    await pokemonAbilitiesListView.SetSourceAsync(pokemon.Abilities);
-                    await pokemonMovesListView.SetSourceAsync(pokemon.Moves);
 
-                    string nameLabel = $"#{pokemon.Id} {pokemon.Name} - {String.Join("/", pokemon.Types)}";
+                    string name = $"#{pokemon.Id} {pokemon.Name}";
+                    string type = $"Type: {String.Join("/", pokemon.Types)}";
                     string description = pokemonSpecies.FlavorTextEntries.First(text => text.Language.Name == "fr").Text;
-                    string height = $"Height: {pokemon.Height.ToString()}";
-                    string weight = $"Weight: {pokemon.Weight.ToString()}";
 
-                    pokemonNameLabel.Width = nameLabel.Length;
-                    pokemonNameLabel.Text = nameLabel;
+                    int descriptionHeight = description.Count(x => x == '\n')+1;
+                    string[] descriptionSplit = description.Split('\n');
+                    List<int> descriptionSplitLength = new List<int>();
+                    foreach(var element in descriptionSplit)
+                    {
+                        descriptionSplitLength.Add(element.Length);
+                    }
 
-                    pokemonSizeLabel.Width = height.Length;
-                    pokemonSizeLabel.Text = height;
+                    List<string> organizedEvolutionChainString = organizedEvolutionChain.ConvertAll(x => x.Name);
+                    List<int>  evolutionLength = new List<int>();
+                    foreach (var element in organizedEvolutionChainString)
+                    {
+                        evolutionLength.Add(element.Length);
+                    }
 
-                    pokemonWeightLabel.Width = weight.Length;
-                    pokemonWeightLabel.Text = weight;
+                    pokemonNameTextView.Text = name;
+                    pokemonNameTextView.Width = name.Length;
 
-                    pokemonDescriptionLabel.Width = description.Length;
-                    pokemonDescriptionLabel.Text = description;
+                    pokemonTypeTextView.Text = type;
+                    pokemonTypeTextView.Width = type.Length;
+
+                    pokemonDescriptionTextView.Text = description;
+                    pokemonDescriptionTextView.Width = descriptionSplitLength.Max();
+                    pokemonDescriptionTextView.Height = descriptionHeight;
+
+                    pokemonEvolutionListView.Width = evolutionLength.Max();
+                    pokemonEvolutionListView.Height = organizedEvolutionChain.Count;
                 });
             }
 
@@ -226,11 +211,9 @@ namespace Pokedex
                 });
             };
 
-            pokemonWindow.Add(pokemonNameLabel, pokemonDescriptionLabel, pokemonEvolutionListView,
-                pokemonAbilitiesListView, pokemonMovesListView, pokemonLocationAreaEncountersListView, pokemonSizeLabel,
-                pokemonWeightLabel);
+            pokemonWindow.Add(pokemonNameTextView, pokemonTypeTextView, pokemonDescriptionTextView, pokemonEvolutionListView);
             pokemonListWindow.Add(previousButton, nextButton, pokemonListView);
-            top.Add(menu, win, pokemonListWindow, pokemonWindow, research, researchLabel, researchButton);
+            top.Add(menu, win, pokemonListWindow, pokemonWindow, researchTextField, researchLabel, researchButton);
             Application.Run(top);
         }
 
