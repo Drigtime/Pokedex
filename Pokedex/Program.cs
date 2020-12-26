@@ -1,4 +1,5 @@
 ﻿using Terminal.Gui;
+using System.Runtime.Caching;
 
 namespace Pokedex
 {

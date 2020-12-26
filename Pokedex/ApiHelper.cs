@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -19,7 +20,8 @@ namespace Pokedex
             HttpResponseMessage response = await client.GetAsync(uri);
             if (response.IsSuccessStatusCode)
             {
-                resourceList = await response.Content.ReadAsAsync<T>();
+                string data = await response.Content.ReadAsStringAsync();
+                resourceList = JsonConvert.DeserializeObject<T>(data);
             }
             return resourceList;
         }

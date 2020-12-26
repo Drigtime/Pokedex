@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Terminal.Gui;
 using Pokedex.PokeApi.EndPoints;
+using System.Runtime.Caching;
+using System.Diagnostics;
+using System.Collections;
 
 namespace Pokedex
 {
@@ -16,6 +19,7 @@ namespace Pokedex
         static App()
         {
             NamedApiResourceList namedApiResourceList = null;
+            var cache = MemoryCache.Default;
 
             Application.Init();
 
@@ -126,7 +130,24 @@ namespace Pokedex
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    namedApiResourceList = await SetPokemonListView(pokemonListView);
+                    //bool inCache = cache.Contains("PokemonList");
+
+
+                    //enumerate cache's keys & values
+                    GetCacheEnumAsync(cache);
+
+                    // cache test
+                    if (cache.Contains("PokemonList"))
+                    {
+                        Debug.Write("\n\nla liste de pokemon est dans le cache\n\n");
+
+                    }
+                    else
+                    {
+                        Debug.Write("\n\nla liste de pokemon est dans le cache\n\n");
+                    }
+                    namedApiResourceList = (NamedApiResourceList)MemoryCache.Default.AddOrGetExisting("PokemonList", namedApiResourceList = await SetPokemonListView(pokemonListView), DateTime.Now.AddHours(24));
+                    //namedApiResourceList = await SetPokemonListView(pokemonListView);
                 });
             };
 
@@ -136,13 +157,47 @@ namespace Pokedex
 
                 Application.MainLoop.Invoke(async () =>
                 {
-                    Pokemon pokemon = await GetPokemon(new Uri(BaseAddress, $"api/v2/pokemon/{namedApiResource.Name}"));
-                    List<LocationAreaEncounter> pokemonLocationAreaEncounters = await GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters);
-                    PokemonSpecies pokemonSpecies = await GetPokemonSpecies(pokemon.Species.Url);
-                    EvolutionChain evolutionChain = await GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url);
+                    //enumerate cache's keys & values
+                    GetCacheEnumAsync(cache);
+
+                    Uri uri = new Uri(BaseAddress, $"api/v2/pokemon/{namedApiResource.Name}");
+
+                    // cache test
+                    if (cache.Contains($"{namedApiResource.Name}"))
+                    {
+                        Debug.WriteLine($"\n\n{namedApiResource.Name} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"\n\n{namedApiResource.Name} is NOT CACHING\n Nombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
+                    }
+
+
+                    Pokemon pokemonCacheIfNot = (Pokemon)MemoryCache.Default.AddOrGetExisting($"{namedApiResource.Name}", await GetPokemon(uri), DateTime.Now.AddHours(24));
+                    Pokemon pokemon = (Pokemon)MemoryCache.Default.Get($"{namedApiResource.Name}");
+
+                    List<LocationAreaEncounter> pokemonLocationAreaEncounters = (List<LocationAreaEncounter>)MemoryCache.Default.AddOrGetExisting("PokemonLocationAreaEncounters" + namedApiResource.Name, await GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters), DateTime.Now.AddHours(24));
+                    List<LocationAreaEncounter> LocationAreaEncounters = (List<LocationAreaEncounter>)MemoryCache.Default.Get("PokemonLocationAreaEncounters" + namedApiResource.Name);
+
+
+                    PokemonSpecies pokemonSpeciesCacheIfNot = (PokemonSpecies)MemoryCache.Default.AddOrGetExisting("PokemonSpecies" + namedApiResource.Name, await GetPokemonSpecies(pokemon.Species.Url), DateTime.Now.AddHours(24));
+                    PokemonSpecies pokemonSpecies = (PokemonSpecies)MemoryCache.Default.Get("PokemonSpecies" + namedApiResource.Name);
+
+                    EvolutionChain evolutionChainCacheIfNot = (EvolutionChain)MemoryCache.Default.AddOrGetExisting("EvolutionChain" + namedApiResource.Name, await GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url), DateTime.Now.AddHours(24));
+                    EvolutionChain evolutionChain = (EvolutionChain)MemoryCache.Default.Get("EvolutionChain" + namedApiResource.Name);
 
                     var organizedEvolutionChain = new List<NamedApiResource>();
                     ChainLink chainLink = evolutionChain.Chain;
+
+                    // cache test
+                    if (cache.Contains($"{namedApiResource.Name}"))
+                    {
+                        Debug.WriteLine($"\n\n{namedApiResource.Name} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"\n\n{namedApiResource.Name} is NOT CACHING \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n");
+                    }
 
                     do
                     {
@@ -187,6 +242,9 @@ namespace Pokedex
 
                     pokemonEvolutionListView.Width = evolutionLength.Max();
                     pokemonEvolutionListView.Height = organizedEvolutionChain.Count;
+                    
+                    //enumerate cache's keys & values
+                    GetCacheEnumAsync(cache);
                 });
             }
 
@@ -197,8 +255,7 @@ namespace Pokedex
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    namedApiResourceList =
-                        await SetPokemonListView(namedApiResourceList, pokemonListView, Left);
+                    namedApiResourceList = await SetPokemonListView(namedApiResourceList, pokemonListView, Left);
                 });
             };
 
@@ -206,8 +263,7 @@ namespace Pokedex
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    namedApiResourceList =
-                        await SetPokemonListView(namedApiResourceList, pokemonListView, Right);
+                    namedApiResourceList = await SetPokemonListView(namedApiResourceList, pokemonListView, Right);
                 });
             };
 
@@ -217,8 +273,7 @@ namespace Pokedex
             Application.Run(top);
         }
 
-        private static async Task<NamedApiResourceList> SetPokemonListView(NamedApiResourceList namedApiResourceList,
-            ListView listView, string direction)
+        private static async Task<NamedApiResourceList> SetPokemonListView(NamedApiResourceList namedApiResourceList, ListView listView, string direction)
         {
             Uri uri = direction == Left ? namedApiResourceList.Previous : namedApiResourceList.Next;
 
@@ -231,7 +286,7 @@ namespace Pokedex
             return namedApiResourceList;
         }
 
-        private static async Task<NamedApiResourceList> SetPokemonListView(ListView listView)
+        public static async Task<NamedApiResourceList> SetPokemonListView(ListView listView)
         {
             NamedApiResourceList namedApiResourceList =
                 await GetNamedApiResourceList(new Uri(BaseAddress, $"api/v2/pokemon?limit=20"));
@@ -262,6 +317,16 @@ namespace Pokedex
         static async Task<EvolutionChain> GetPokemonEvolution(Uri uri)
         {
             return await ApiHelper<EvolutionChain>.GenericCallWebApiAsync(uri);
+        }
+
+        //enumerate cache's keys & values
+        protected static void GetCacheEnumAsync(MemoryCache cache)
+        {
+            IDictionaryEnumerator cacheEnumerator = (IDictionaryEnumerator)((IEnumerable)cache).GetEnumerator();
+            while (cacheEnumerator.MoveNext())
+            {
+                Debug.WriteLine("///////// Item de la liste du cache : \n\n{0} : {1}{2}", cacheEnumerator.Key, cacheEnumerator.Value, Environment.NewLine);
+            }
         }
     }
 }
