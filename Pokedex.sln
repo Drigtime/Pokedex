@@ -5,7 +5,13 @@ VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pokedex", "Pokedex\Pokedex.csproj", "{49A34DE6-167B-4AFF-8555-45CC982CF184}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokedexXUnitTests", "PokedexXUnitTests\PokedexXUnitTests.csproj", "{6AC43D57-14CC-4F20-B440-9882B7462105}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiHelperXUnitTests", "ApiHelperXUnitTests\ApiHelperXUnitTests.csproj", "{6AC43D57-14CC-4F20-B440-9882B7462105}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiHelper", "ApiHelper\ApiHelper.csproj", "{36EC7E82-EB90-4A05-85AF-061428986753}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokeApi", "PokeApi\PokeApi.csproj", "{699AF423-99A3-4E73-9539-2F48B5EAF4C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokedexXUnitTests", "PokedexXUnitTests\PokedexXUnitTests.csproj", "{AD983BF1-3FF2-46A6-83BF-588F93636633}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{6AC43D57-14CC-4F20-B440-9882B7462105}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6AC43D57-14CC-4F20-B440-9882B7462105}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6AC43D57-14CC-4F20-B440-9882B7462105}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36EC7E82-EB90-4A05-85AF-061428986753}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36EC7E82-EB90-4A05-85AF-061428986753}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36EC7E82-EB90-4A05-85AF-061428986753}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36EC7E82-EB90-4A05-85AF-061428986753}.Release|Any CPU.Build.0 = Release|Any CPU
+		{699AF423-99A3-4E73-9539-2F48B5EAF4C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{699AF423-99A3-4E73-9539-2F48B5EAF4C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{699AF423-99A3-4E73-9539-2F48B5EAF4C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{699AF423-99A3-4E73-9539-2F48B5EAF4C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD983BF1-3FF2-46A6-83BF-588F93636633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD983BF1-3FF2-46A6-83BF-588F93636633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD983BF1-3FF2-46A6-83BF-588F93636633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD983BF1-3FF2-46A6-83BF-588F93636633}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

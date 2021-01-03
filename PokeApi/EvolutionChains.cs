@@ -1,33 +1,26 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
-namespace Pokedex.PokeApi.EndPoints
+namespace PokeApi
 {
     public class EvolutionChain
     {
-        [JsonProperty("id")]
-        public int Id;
+        [JsonProperty("baby_trigger_item")] public NamedApiResource BabyTriggerItem;
 
-        [JsonProperty("baby_trigger_item")]
-        public NamedApiResource BabyTriggerItem;
+        [JsonProperty("chain")] public ChainLink Chain;
 
-        [JsonProperty("chain")]
-        public ChainLink Chain;
+        [JsonProperty("id")] public int Id;
     }
 
     public class ChainLink
     {
-        [JsonProperty("is_baby")]
-        public bool IsBaby;
+        [JsonProperty("evolution_details")] public List<EvolutionDetail> EvolutionDetail;
 
-        [JsonProperty("species")]
-        public NamedApiResource Species;
+        [JsonProperty("evolves_to")] public List<ChainLink> EvolvesTo;
 
-        [JsonProperty("evolution_details")]
-        public List<EvolutionDetail> EvolutionDetail;
+        [JsonProperty("is_baby")] public bool IsBaby;
 
-        [JsonProperty("evolves_to")]
-        public List<ChainLink> EvolvesTo;
+        [JsonProperty("species")] public NamedApiResource Species;
 
         public override string ToString()
         {
@@ -37,17 +30,13 @@ namespace Pokedex.PokeApi.EndPoints
 
     public class EvolutionDetail
     {
-        [JsonProperty("item")]
-        public NamedApiResource Item;
-
-        [JsonProperty("trigger")]
-        public NamedApiResource Trigger;
-
         [JsonProperty("gender", NullValueHandling = NullValueHandling.Ignore)]
         public int Gender;
 
         [JsonProperty("held_item", NullValueHandling = NullValueHandling.Ignore)]
         public NamedApiResource HeldItem;
+
+        [JsonProperty("item")] public NamedApiResource Item;
 
         [JsonProperty("known_move", NullValueHandling = NullValueHandling.Ignore)]
         public NamedApiResource KnownMove;
@@ -58,17 +47,17 @@ namespace Pokedex.PokeApi.EndPoints
         [JsonProperty("location", NullValueHandling = NullValueHandling.Ignore)]
         public NamedApiResource Location;
 
-        [JsonProperty("min_level", NullValueHandling = NullValueHandling.Ignore)]
-        public int MinLevel;
-
-        [JsonProperty("min_happiness", NullValueHandling = NullValueHandling.Ignore)]
-        public int MinHappiness;
+        [JsonProperty("min_affection", NullValueHandling = NullValueHandling.Ignore)]
+        public int MinAffection;
 
         [JsonProperty("min_beauty", NullValueHandling = NullValueHandling.Ignore)]
         public int MinBeauty;
 
-        [JsonProperty("min_affection", NullValueHandling = NullValueHandling.Ignore)]
-        public int MinAffection;
+        [JsonProperty("min_happiness", NullValueHandling = NullValueHandling.Ignore)]
+        public int MinHappiness;
+
+        [JsonProperty("min_level", NullValueHandling = NullValueHandling.Ignore)]
+        public int MinLevel;
 
         [JsonProperty("needs_overworld_rain", NullValueHandling = NullValueHandling.Ignore)]
         public bool NeedsOverworldRain;
@@ -87,6 +76,8 @@ namespace Pokedex.PokeApi.EndPoints
 
         [JsonProperty("trade_species", NullValueHandling = NullValueHandling.Ignore)]
         public NamedApiResource TradeSpecies;
+
+        [JsonProperty("trigger")] public NamedApiResource Trigger;
 
         [JsonProperty("turn_upside_down", NullValueHandling = NullValueHandling.Ignore)]
         public bool TurnUpsideDown;
