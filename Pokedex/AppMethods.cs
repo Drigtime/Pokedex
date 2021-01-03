@@ -16,11 +16,11 @@ namespace Pokedex
         public const string Left = "left";
         public const string Right = "right";
         public static readonly Uri BaseAddress = new Uri("https://pokeapi.co");
-        public HttpClient httpClient;
+        public HttpClient HttpClient;
 
         public AppMethods(HttpClient httpClient)
         {
-            this.httpClient = httpClient;
+            HttpClient = httpClient;
         }
 
         public async Task SetPokemonListView(NamedApiResourceList namedApiResourceList, ListView listView,
@@ -44,32 +44,32 @@ namespace Pokedex
 
         public async Task<NamedApiResourceList> GetNamedApiResourceList(Uri uri)
         {
-            var apiHelper = new ApiHelper<NamedApiResourceList>(httpClient);
+            var apiHelper = new ApiHelper<NamedApiResourceList>(HttpClient);
             var namedApiResourceList = await apiHelper.GenericCallWebApiAsync(uri);
             return namedApiResourceList;
         }
 
         public async Task<Pokemon> GetPokemon(Uri uri)
         {
-            var apiHelper = new ApiHelper<Pokemon>(httpClient);
+            var apiHelper = new ApiHelper<Pokemon>(HttpClient);
             return await apiHelper.GenericCallWebApiAsync(uri);
         }
 
         public async Task<List<LocationAreaEncounter>> GetPokemonLocationAreaEncounters(Uri uri)
         {
-            var apiHelper = new ApiHelper<List<LocationAreaEncounter>>(httpClient);
+            var apiHelper = new ApiHelper<List<LocationAreaEncounter>>(HttpClient);
             return await apiHelper.GenericCallWebApiAsync(uri);
         }
 
         public async Task<PokemonSpecies> GetPokemonSpecies(Uri uri)
         {
-            var apiHelper = new ApiHelper<PokemonSpecies>(httpClient);
+            var apiHelper = new ApiHelper<PokemonSpecies>(HttpClient);
             return await apiHelper.GenericCallWebApiAsync(uri);
         }
 
         public async Task<EvolutionChain> GetPokemonEvolution(Uri uri)
         {
-            var apiHelper = new ApiHelper<EvolutionChain>(httpClient);
+            var apiHelper = new ApiHelper<EvolutionChain>(HttpClient);
             return await apiHelper.GenericCallWebApiAsync(uri);
         }
 
@@ -78,10 +78,8 @@ namespace Pokedex
         {
             var cacheEnumerator = (IDictionaryEnumerator) ((IEnumerable) cache).GetEnumerator();
             while (cacheEnumerator.MoveNext())
-            {
                 Debug.WriteLine("///////// Item de la liste du cache : \n\n{0} : {1}{2}", cacheEnumerator.Key,
                     cacheEnumerator.Value, Environment.NewLine);
-            }
         }
     }
 }

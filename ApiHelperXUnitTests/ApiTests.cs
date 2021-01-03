@@ -26,7 +26,7 @@ namespace ApiHelperXUnitTests
 
         [Theory] are tests which are only true for a particular set of data.*/
 
-        private readonly Uri uri = new Uri(AppMethods.BaseAddress, "api/v2/pokemon/ivysaur");
+        private readonly Uri _uri = new Uri(AppMethods.BaseAddress, "api/v2/pokemon/ivysaur");
 
 /*        [Fact]
         public async Task isItPokemonClassType_ReturnTrue()
@@ -69,10 +69,13 @@ namespace ApiHelperXUnitTests
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync((HttpRequestMessage request, CancellationToken token) =>
                 {
-                    var response = new HttpResponseMessage();
-                    response.StatusCode = HttpStatusCode.OK; //Setting statuscode    
-                    response.Content =
-                        new StringContent(JsonConvert.SerializeObject(result)); // configure your response here    
+                    var response = new HttpResponseMessage
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(JsonConvert.SerializeObject(result))
+                    };
+                    //Setting statuscode    
+                    // configure your response here    
                     response.Content.Headers.ContentType =
                         new MediaTypeHeaderValue("application/json"); //Setting media type for the response    
                     return response;
@@ -83,7 +86,7 @@ namespace ApiHelperXUnitTests
             var httpClient = new HttpClient(handlerMock.Object);
             var appMethods = new AppMethods(httpClient);
 
-            var pokemonResult = await appMethods.GetPokemon(uri);
+            var pokemonResult = await appMethods.GetPokemon(_uri);
 
             Assert.IsType<Pokemon>(pokemonResult);
             //Assert.NotNull(result);
@@ -110,10 +113,13 @@ namespace ApiHelperXUnitTests
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync((HttpRequestMessage request, CancellationToken token) =>
                 {
-                    var response = new HttpResponseMessage();
-                    response.StatusCode = HttpStatusCode.OK; //Setting statuscode    
-                    response.Content =
-                        new StringContent(JsonConvert.SerializeObject(result)); // configure your response here    
+                    var response = new HttpResponseMessage
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(JsonConvert.SerializeObject(result))
+                    };
+                    //Setting statuscode    
+                    // configure your response here    
                     response.Content.Headers.ContentType =
                         new MediaTypeHeaderValue("application/json"); //Setting media type for the response    
                     return response;
@@ -124,7 +130,7 @@ namespace ApiHelperXUnitTests
             var httpClient = new HttpClient(handlerMock.Object);
             var appMethods = new AppMethods(httpClient);
 
-            var locationAreaEncounterResult = await appMethods.GetPokemonLocationAreaEncounters(uri);
+            var locationAreaEncounterResult = await appMethods.GetPokemonLocationAreaEncounters(_uri);
 
             Assert.IsType<LocationAreaEncounter>(locationAreaEncounterResult);
             //Assert.NotNull(result);
@@ -151,10 +157,13 @@ namespace ApiHelperXUnitTests
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync((HttpRequestMessage request, CancellationToken token) =>
                 {
-                    var response = new HttpResponseMessage();
-                    response.StatusCode = HttpStatusCode.OK; //Setting statuscode    
-                    response.Content =
-                        new StringContent(JsonConvert.SerializeObject(result)); // configure your response here    
+                    var response = new HttpResponseMessage
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(JsonConvert.SerializeObject(result))
+                    };
+                    //Setting statuscode    
+                    // configure your response here    
                     response.Content.Headers.ContentType =
                         new MediaTypeHeaderValue("application/json"); //Setting media type for the response    
                     return response;
@@ -165,7 +174,7 @@ namespace ApiHelperXUnitTests
             var httpClient = new HttpClient(handlerMock.Object);
             var appMethods = new AppMethods(httpClient);
 
-            var pokemonSpeciesResult = await appMethods.GetPokemonSpecies(uri);
+            var pokemonSpeciesResult = await appMethods.GetPokemonSpecies(_uri);
 
             Assert.IsType<PokemonSpecies>(pokemonSpeciesResult);
             //Assert.NotNull(result);

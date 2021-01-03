@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.Caching;
@@ -147,14 +148,13 @@ namespace Pokedex
                         Debug.Write(cacheLimit);
                     }
 
-                    var namedApiResourceListCacheIfNot = (NamedApiResourceList) MemoryCache.Default.AddOrGetExisting(
-                        "PokemonList", await appMethods.SetPokemonListView(pokemonListView), DateTime.Now.AddHours(24));
+                    MemoryCache.Default.AddOrGetExisting("PokemonList",
+                        await appMethods.SetPokemonListView(pokemonListView), DateTime.Now.AddHours(24));
                     namedApiResourceList = (NamedApiResourceList) MemoryCache.Default.Get("PokemonList");
 
-                    if (cache.Contains("PokemonList"))
-                        Debug.Write("\n\nla liste de pokemon est dans le cache\n\n");
-                    else
-                        Debug.Write("\n\nla liste de pokemon n'est pas dans le cache\n\n");
+                    Debug.Write(cache.Contains("PokemonList")
+                        ? "\n\nla liste de pokemon est dans le cache\n\n"
+                        : "\n\nla liste de pokemon n'est pas dans le cache\n\n");
                 });
             };
 
@@ -170,86 +170,86 @@ namespace Pokedex
                     var uri = new Uri(AppMethods.BaseAddress, $"api/v2/pokemon/{namedApiResource.Name}");
 
                     // cache test
-                    if (cache.Contains($"{namedApiResource.Name}"))
-                        Debug.WriteLine(
-                            $"\n\n{namedApiResource.Name} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
-                    else
-                        Debug.WriteLine(
-                            $"\n\n{namedApiResource.Name} is NOT CACHING\n Nombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
+                    Debug.WriteLine(
+                        cache.Contains($"{namedApiResource.Name}")
+                            ? $"\n\n{namedApiResource.Name} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n"
+                            : $"\n\n{namedApiResource.Name} is NOT CACHING\n Nombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
 
-
-                    var pokemonCacheIfNot = (Pokemon) MemoryCache.Default.AddOrGetExisting($"{namedApiResource.Name}",
+                    MemoryCache.Default.AddOrGetExisting($"{namedApiResource.Name}",
                         await appMethods.GetPokemon(uri), DateTime.Now.AddHours(24));
                     var pokemon = (Pokemon) MemoryCache.Default.Get($"{namedApiResource.Name}");
 
-                    var pokemonLocationAreaEncountersCacheIfNot =
-                        (List<LocationAreaEncounter>) MemoryCache.Default.AddOrGetExisting(
+                    if (pokemon != null)
+                    {
+                        MemoryCache.Default.AddOrGetExisting(
                             "PokemonLocationAreaEncounters" + namedApiResource.Name,
                             await appMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
                             DateTime.Now.AddHours(24));
-                    var pokemonLocationAreaEncounters =
-                        (List<LocationAreaEncounter>) MemoryCache.Default.Get("PokemonLocationAreaEncounters" +
-                                                                              namedApiResource.Name);
+                        MemoryCache.Default.Get("PokemonLocationAreaEncounters" +
+                                                namedApiResource.Name);
 
+                        MemoryCache.Default.AddOrGetExisting(
+                            "PokemonSpecies" + namedApiResource.Name,
+                            await appMethods.GetPokemonSpecies(pokemon.Species.Url), DateTime.Now.AddHours(24));
+                        var pokemonSpecies =
+                            (PokemonSpecies) MemoryCache.Default.Get("PokemonSpecies" + namedApiResource.Name);
 
-                    var pokemonSpeciesCacheIfNot = (PokemonSpecies) MemoryCache.Default.AddOrGetExisting(
-                        "PokemonSpecies" + namedApiResource.Name,
-                        await appMethods.GetPokemonSpecies(pokemon.Species.Url), DateTime.Now.AddHours(24));
-                    var pokemonSpecies =
-                        (PokemonSpecies) MemoryCache.Default.Get("PokemonSpecies" + namedApiResource.Name);
+                        if (pokemonSpecies != null)
+                        {
+                            MemoryCache.Default.AddOrGetExisting(
+                                "EvolutionChain" + namedApiResource.Name,
+                                await appMethods.GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url),
+                                DateTime.Now.AddHours(24));
+                            var evolutionChain =
+                                (EvolutionChain) MemoryCache.Default.Get("EvolutionChain" + namedApiResource.Name);
 
-                    var evolutionChainCacheIfNot = (EvolutionChain) MemoryCache.Default.AddOrGetExisting(
-                        "EvolutionChain" + namedApiResource.Name,
-                        await appMethods.GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url),
-                        DateTime.Now.AddHours(24));
-                    var evolutionChain =
-                        (EvolutionChain) MemoryCache.Default.Get("EvolutionChain" + namedApiResource.Name);
+                            var organizedEvolutionChain = new List<NamedApiResource>();
+                            if (evolutionChain != null)
+                            {
+                                var chainLink = evolutionChain.Chain;
 
-                    var organizedEvolutionChain = new List<NamedApiResource>();
-                    var chainLink = evolutionChain.Chain;
+                                // cache test
+                                Debug.WriteLine(
+                                    cache.Contains($"{namedApiResource.Name}")
+                                        ? $"\n\n{namedApiResource.Name} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n"
+                                        : $"\n\n{namedApiResource.Name} is NOT CACHING \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n");
 
-                    // cache test
-                    if (cache.Contains($"{namedApiResource.Name}"))
-                        Debug.WriteLine(
-                            $"\n\n{namedApiResource.Name} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n");
-                    else
-                        Debug.WriteLine(
-                            $"\n\n{namedApiResource.Name} is NOT CACHING \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n");
+                                do
+                                {
+                                    organizedEvolutionChain.Add(chainLink.Species);
+                                    chainLink = chainLink.EvolvesTo[0];
+                                    if (chainLink.EvolvesTo.Count == 0) organizedEvolutionChain.Add(chainLink.Species);
+                                } while (chainLink.EvolvesTo.Count > 0);
+                            }
 
-                    do
-                    {
-                        organizedEvolutionChain.Add(chainLink.Species);
-                        chainLink = chainLink.EvolvesTo[0];
-                        if (chainLink.EvolvesTo.Count == 0) organizedEvolutionChain.Add(chainLink.Species);
-                    } while (chainLink.EvolvesTo.Count > 0);
+                            await pokemonEvolutionListView.SetSourceAsync(organizedEvolutionChain);
 
-                    await pokemonEvolutionListView.SetSourceAsync(organizedEvolutionChain);
+                            var name = $"#{pokemon.Id} {pokemon.Name}";
+                            var type = $"Type: {string.Join("/", pokemon.Types)}";
+                            var description = pokemonSpecies.FlavorTextEntries.First(text => text.Language.Name == "fr")
+                                .Text;
 
-                    var name = $"#{pokemon.Id} {pokemon.Name}";
-                    var type = $"Type: {string.Join("/", pokemon.Types)}";
-                    var description = pokemonSpecies.FlavorTextEntries.First(text => text.Language.Name == "fr").Text;
+                            var descriptionHeight = description.Count(x => x == '\n') + 1;
+                            var descriptionSplit = description.Split('\n');
+                            var descriptionSplitLength = descriptionSplit.Select(element => element.Length).ToList();
 
-                    var descriptionHeight = description.Count(x => x == '\n') + 1;
-                    var descriptionSplit = description.Split('\n');
-                    var descriptionSplitLength = new List<int>();
-                    foreach (var element in descriptionSplit) descriptionSplitLength.Add(element.Length);
+                            var organizedEvolutionChainString = organizedEvolutionChain.ConvertAll(x => x.Name);
+                            var evolutionLength = organizedEvolutionChainString.Select(element => element.Length).ToList();
 
-                    var organizedEvolutionChainString = organizedEvolutionChain.ConvertAll(x => x.Name);
-                    var evolutionLength = new List<int>();
-                    foreach (var element in organizedEvolutionChainString) evolutionLength.Add(element.Length);
+                            pokemonNameTextView.Text = name;
+                            pokemonNameTextView.Width = name.Length;
 
-                    pokemonNameTextView.Text = name;
-                    pokemonNameTextView.Width = name.Length;
+                            pokemonTypeTextView.Text = type;
+                            pokemonTypeTextView.Width = type.Length;
 
-                    pokemonTypeTextView.Text = type;
-                    pokemonTypeTextView.Width = type.Length;
+                            pokemonDescriptionTextView.Text = description;
+                            pokemonDescriptionTextView.Width = descriptionSplitLength.Max();
+                            pokemonDescriptionTextView.Height = descriptionHeight;
 
-                    pokemonDescriptionTextView.Text = description;
-                    pokemonDescriptionTextView.Width = descriptionSplitLength.Max();
-                    pokemonDescriptionTextView.Height = descriptionHeight;
-
-                    pokemonEvolutionListView.Width = evolutionLength.Max();
-                    pokemonEvolutionListView.Height = organizedEvolutionChain.Count;
+                            pokemonEvolutionListView.Width = evolutionLength.Max();
+                            pokemonEvolutionListView.Height = organizedEvolutionChain.Count;
+                        }
+                    }
 
                     //enumerate cache's keys & values
                     AppMethods.GetCacheEnumAsync(cache);
@@ -259,7 +259,7 @@ namespace Pokedex
             void OnPokemonListViewOnOpenSelectedItemResearchButton()
             {
                 //NamedApiResource namedApiResource = (NamedApiResource)e.Value;
-                var inputResearchText = Convert.ToString(researchTextField.Text);
+                var inputResearchText = Convert.ToString(researchTextField.Text, CultureInfo.InvariantCulture);
 
                 Application.MainLoop.Invoke(async () =>
                 {
@@ -269,92 +269,95 @@ namespace Pokedex
                     var uri = new Uri(AppMethods.BaseAddress, $"api/v2/pokemon/{inputResearchText}");
                     Debug.Write(uri);
                     // cache test
-                    if (cache.Contains($"{inputResearchText}"))
-                        Debug.WriteLine(
-                            $"\n\n{inputResearchText} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
-                    else
-                        Debug.WriteLine(
-                            $"\n\n{inputResearchText} is NOT CACHING\n Nombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
+                    Debug.WriteLine(
+                        cache.Contains($"{inputResearchText}")
+                            ? $"\n\n{inputResearchText} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n"
+                            : $"\n\n{inputResearchText} is NOT CACHING\n Nombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
 
 
-                    var pokemonCacheIfNot = (Pokemon) MemoryCache.Default.AddOrGetExisting($"{inputResearchText}",
+                    MemoryCache.Default.AddOrGetExisting($"{inputResearchText}",
                         await appMethods.GetPokemon(uri), DateTime.Now.AddHours(24));
                     var pokemon = (Pokemon) MemoryCache.Default.Get($"{inputResearchText}");
 
-                    var pokemonLocationAreaEncounters =
-                        (List<LocationAreaEncounter>) MemoryCache.Default.AddOrGetExisting(
+                    if (pokemon != null)
+                        MemoryCache.Default.AddOrGetExisting(
                             "PokemonLocationAreaEncounters" + inputResearchText,
                             await appMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
                             DateTime.Now.AddHours(24));
-                    var LocationAreaEncounters =
-                        (List<LocationAreaEncounter>) MemoryCache.Default.Get("PokemonLocationAreaEncounters" +
-                                                                              inputResearchText);
+                    MemoryCache.Default.Get("PokemonLocationAreaEncounters" +
+                                            inputResearchText);
 
-
-                    var pokemonSpeciesCacheIfNot = (PokemonSpecies) MemoryCache.Default.AddOrGetExisting(
-                        "PokemonSpecies" + inputResearchText, await appMethods.GetPokemonSpecies(pokemon.Species.Url),
-                        DateTime.Now.AddHours(24));
-                    var pokemonSpecies = (PokemonSpecies) MemoryCache.Default.Get("PokemonSpecies" + inputResearchText);
-
-                    var evolutionChainCacheIfNot = (EvolutionChain) MemoryCache.Default.AddOrGetExisting(
-                        "EvolutionChain" + inputResearchText,
-                        await appMethods.GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url),
-                        DateTime.Now.AddHours(24));
-                    var evolutionChain = (EvolutionChain) MemoryCache.Default.Get("EvolutionChain" + inputResearchText);
-
-                    var organizedEvolutionChain = new List<NamedApiResource>();
-                    var chainLink = evolutionChain.Chain;
-
-                    // cache test
-                    if (cache.Contains($"{inputResearchText}"))
-                        Debug.WriteLine(
-                            $"\n\n{inputResearchText} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n");
-                    else
-                        Debug.WriteLine(
-                            $"\n\n{inputResearchText} is NOT CACHING \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n");
-
-                    do
+                    if (pokemon != null)
                     {
-                        organizedEvolutionChain.Add(chainLink.Species);
-                        chainLink = chainLink.EvolvesTo[0];
-                        if (chainLink.EvolvesTo.Count == 0) organizedEvolutionChain.Add(chainLink.Species);
-                    } while (chainLink.EvolvesTo.Count > 0);
+                        MemoryCache.Default.AddOrGetExisting(
+                            "PokemonSpecies" + inputResearchText,
+                            await appMethods.GetPokemonSpecies(pokemon.Species.Url),
+                            DateTime.Now.AddHours(24));
+                        var pokemonSpecies =
+                            (PokemonSpecies) MemoryCache.Default.Get("PokemonSpecies" + inputResearchText);
 
-                    await pokemonEvolutionListView.SetSourceAsync(organizedEvolutionChain);
+                        if (pokemonSpecies != null)
+                        {
+                            MemoryCache.Default.AddOrGetExisting(
+                                "EvolutionChain" + inputResearchText,
+                                await appMethods.GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url),
+                                DateTime.Now.AddHours(24));
+                            var evolutionChain =
+                                (EvolutionChain) MemoryCache.Default.Get("EvolutionChain" + inputResearchText);
 
-                    var name = $"#{pokemon.Id} {pokemon.Name}";
-                    var type = $"Type: {string.Join("/", pokemon.Types)}";
-                    var description = pokemonSpecies.FlavorTextEntries.First(text => text.Language.Name == "fr").Text;
+                            var organizedEvolutionChain = new List<NamedApiResource>();
+                            if (evolutionChain != null)
+                            {
+                                var chainLink = evolutionChain.Chain;
 
-                    var descriptionHeight = description.Count(x => x == '\n') + 1;
-                    var descriptionSplit = description.Split('\n');
-                    var descriptionSplitLength = new List<int>();
-                    foreach (var element in descriptionSplit) descriptionSplitLength.Add(element.Length);
+                                // cache test
+                                Debug.WriteLine(
+                                    cache.Contains($"{inputResearchText}")
+                                        ? $"\n\n{inputResearchText} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n"
+                                        : $"\n\n{inputResearchText} is NOT CACHING \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n");
 
-                    var organizedEvolutionChainString = organizedEvolutionChain.ConvertAll(x => x.Name);
-                    var evolutionLength = new List<int>();
-                    foreach (var element in organizedEvolutionChainString) evolutionLength.Add(element.Length);
+                                do
+                                {
+                                    organizedEvolutionChain.Add(chainLink.Species);
+                                    chainLink = chainLink.EvolvesTo[0];
+                                    if (chainLink.EvolvesTo.Count == 0) organizedEvolutionChain.Add(chainLink.Species);
+                                } while (chainLink.EvolvesTo.Count > 0);
+                            }
 
-                    pokemonNameTextView.Text = name;
-                    pokemonNameTextView.Width = name.Length;
+                            await pokemonEvolutionListView.SetSourceAsync(organizedEvolutionChain);
 
-                    pokemonTypeTextView.Text = type;
-                    pokemonTypeTextView.Width = type.Length;
+                            var name = $"#{pokemon.Id} {pokemon.Name}";
+                            var type = $"Type: {string.Join("/", pokemon.Types)}";
+                            var description = pokemonSpecies.FlavorTextEntries.First(text => text.Language.Name == "fr")
+                                .Text;
 
-                    pokemonDescriptionTextView.Text = description;
-                    pokemonDescriptionTextView.Width = descriptionSplitLength.Max();
-                    pokemonDescriptionTextView.Height = descriptionHeight;
+                            var descriptionHeight = description.Count(x => x == '\n') + 1;
+                            var descriptionSplit = description.Split('\n');
+                            var descriptionSplitLength = descriptionSplit.Select(element => element.Length).ToList();
 
-                    pokemonEvolutionListView.Width = evolutionLength.Max();
-                    pokemonEvolutionListView.Height = organizedEvolutionChain.Count;
+                            var organizedEvolutionChainString = organizedEvolutionChain.ConvertAll(x => x.Name);
+                            var evolutionLength = organizedEvolutionChainString.Select(element => element.Length)
+                                .ToList();
+
+                            pokemonNameTextView.Text = name;
+                            pokemonNameTextView.Width = name.Length;
+
+                            pokemonTypeTextView.Text = type;
+                            pokemonTypeTextView.Width = type.Length;
+
+                            pokemonDescriptionTextView.Text = description;
+                            pokemonDescriptionTextView.Width = descriptionSplitLength.Max();
+                            pokemonDescriptionTextView.Height = descriptionHeight;
+
+                            pokemonEvolutionListView.Width = evolutionLength.Max();
+                            pokemonEvolutionListView.Height = organizedEvolutionChain.Count;
+                        }
+                    }
 
                     //enumerate cache's keys & values
                     AppMethods.GetCacheEnumAsync(cache);
                 });
             }
-
-            ;
-
 
             pokemonListView.OpenSelectedItem += OnPokemonListViewOnOpenSelectedItem;
             pokemonEvolutionListView.OpenSelectedItem += OnPokemonListViewOnOpenSelectedItem;
