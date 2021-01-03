@@ -6,18 +6,24 @@ using System.Threading.Tasks;
 
 namespace Pokedex
 {
-    static class ApiHelper<T>
+    public class ApiHelper<T>
     {
-        public static async Task<T> GenericCallWebApiAsync(Uri uri)
+        private readonly HttpClient httpClient;
+
+        public ApiHelper(HttpClient httpClient)
         {
-            using var client = new HttpClient();
+            this.httpClient = httpClient;
+        }
+        public async Task<T> GenericCallWebApiAsync(Uri uri)
+        {
+            //using var client = new HttpClient();
             T resourceList = default;
 
             // client.DefaultRequestHeaders.CacheControl.Public = true;
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             //GET Method  
-            HttpResponseMessage response = await client.GetAsync(uri);
+            HttpResponseMessage response = await httpClient.GetAsync(uri);
             if (response.IsSuccessStatusCode)
             {
                 string data = await response.Content.ReadAsStringAsync();
