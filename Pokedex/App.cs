@@ -170,38 +170,38 @@ namespace Pokedex
                     var uri = new Uri(AppMethods.BaseAddress, $"api/v2/pokemon/{namedApiResource.Name}");
 
                     // cache test
-                    Debug.WriteLine(
-                        cache.Contains($"{namedApiResource.Name}")
-                            ? $"\n\n{namedApiResource.Name} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n"
-                            : $"\n\n{namedApiResource.Name} is NOT CACHING\n Nombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
+                    // Debug.WriteLine(
+                    //     cache.Contains($"{namedApiResource.Name}")
+                    //         ? $"\n\n{namedApiResource.Name} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n"
+                    //         : $"\n\n{namedApiResource.Name} is NOT CACHING\n Nombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
 
-                    MemoryCache.Default.AddOrGetExisting($"{namedApiResource.Name}",
-                        await appMethods.GetPokemon(uri), DateTime.Now.AddHours(24));
+                    if (!MemoryCache.Default.Contains($"{namedApiResource.Name}"))
+                        MemoryCache.Default.Add($"{namedApiResource.Name}", await appMethods.GetPokemon(uri),
+                            DateTime.Now.AddHours(24));
+
                     var pokemon = (Pokemon) MemoryCache.Default.Get($"{namedApiResource.Name}");
 
                     if (pokemon != null)
                     {
-                        MemoryCache.Default.AddOrGetExisting(
-                            "PokemonLocationAreaEncounters" + namedApiResource.Name,
-                            await appMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
-                            DateTime.Now.AddHours(24));
-                        MemoryCache.Default.Get("PokemonLocationAreaEncounters" +
-                                                namedApiResource.Name);
-
-                        MemoryCache.Default.AddOrGetExisting(
-                            "PokemonSpecies" + namedApiResource.Name,
-                            await appMethods.GetPokemonSpecies(pokemon.Species.Url), DateTime.Now.AddHours(24));
+                        if (!MemoryCache.Default.Contains($"PokemonLocationAreaEncounters{namedApiResource.Name}"))
+                            MemoryCache.Default.Add($"PokemonLocationAreaEncounters{namedApiResource.Name}",
+                                await appMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
+                                DateTime.Now.AddHours(24));
+                        MemoryCache.Default.Get($"PokemonLocationAreaEncounters{namedApiResource.Name}");
+                        if (!MemoryCache.Default.Contains($"PokemonSpecies{namedApiResource.Name}"))
+                            MemoryCache.Default.Add($"PokemonSpecies{namedApiResource.Name}",
+                                await appMethods.GetPokemonSpecies(pokemon.Species.Url), DateTime.Now.AddHours(24));
                         var pokemonSpecies =
-                            (PokemonSpecies) MemoryCache.Default.Get("PokemonSpecies" + namedApiResource.Name);
+                            (PokemonSpecies) MemoryCache.Default.Get($"PokemonSpecies{namedApiResource.Name}");
 
                         if (pokemonSpecies != null)
                         {
-                            MemoryCache.Default.AddOrGetExisting(
-                                "EvolutionChain" + namedApiResource.Name,
-                                await appMethods.GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url),
-                                DateTime.Now.AddHours(24));
+                            if (!MemoryCache.Default.Contains($"EvolutionChain{namedApiResource.Name}"))
+                                MemoryCache.Default.Add($"EvolutionChain{namedApiResource.Name}",
+                                    await appMethods.GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url),
+                                    DateTime.Now.AddHours(24));
                             var evolutionChain =
-                                (EvolutionChain) MemoryCache.Default.Get("EvolutionChain" + namedApiResource.Name);
+                                (EvolutionChain) MemoryCache.Default.Get($"EvolutionChain{namedApiResource.Name}");
 
                             var organizedEvolutionChain = new List<NamedApiResource>();
                             if (evolutionChain != null)
@@ -209,10 +209,10 @@ namespace Pokedex
                                 var chainLink = evolutionChain.Chain;
 
                                 // cache test
-                                Debug.WriteLine(
-                                    cache.Contains($"{namedApiResource.Name}")
-                                        ? $"\n\n{namedApiResource.Name} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n"
-                                        : $"\n\n{namedApiResource.Name} is NOT CACHING \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n");
+                                // Debug.WriteLine(
+                                //    cache.Contains($"{namedApiResource.Name}")
+                                //        ? $"\n\n{namedApiResource.Name} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n"
+                                //        : $"\n\n{namedApiResource.Name} is NOT CACHING \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n");
 
                                 do
                                 {
@@ -234,7 +234,8 @@ namespace Pokedex
                             var descriptionSplitLength = descriptionSplit.Select(element => element.Length).ToList();
 
                             var organizedEvolutionChainString = organizedEvolutionChain.ConvertAll(x => x.Name);
-                            var evolutionLength = organizedEvolutionChainString.Select(element => element.Length).ToList();
+                            var evolutionLength = organizedEvolutionChainString.Select(element => element.Length)
+                                .ToList();
 
                             pokemonNameTextView.Text = name;
                             pokemonNameTextView.Width = name.Length;
@@ -269,41 +270,44 @@ namespace Pokedex
                     var uri = new Uri(AppMethods.BaseAddress, $"api/v2/pokemon/{inputResearchText}");
                     Debug.Write(uri);
                     // cache test
-                    Debug.WriteLine(
-                        cache.Contains($"{inputResearchText}")
-                            ? $"\n\n{inputResearchText} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n"
-                            : $"\n\n{inputResearchText} is NOT CACHING\n Nombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
+                    // Debug.WriteLine(
+                    //     cache.Contains($"{inputResearchText}")
+                    //         ? $"\n\n{inputResearchText} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n"
+                    //         : $"\n\n{inputResearchText} is NOT CACHING\n Nombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
 
+                    if (!MemoryCache.Default.Contains($"{inputResearchText}"))
+                        MemoryCache.Default.Add($"{inputResearchText}", await appMethods.GetPokemon(uri),
+                            DateTime.Now.AddHours(24));
 
-                    MemoryCache.Default.AddOrGetExisting($"{inputResearchText}",
-                        await appMethods.GetPokemon(uri), DateTime.Now.AddHours(24));
                     var pokemon = (Pokemon) MemoryCache.Default.Get($"{inputResearchText}");
 
                     if (pokemon != null)
-                        MemoryCache.Default.AddOrGetExisting(
-                            "PokemonLocationAreaEncounters" + inputResearchText,
-                            await appMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
-                            DateTime.Now.AddHours(24));
-                    MemoryCache.Default.Get("PokemonLocationAreaEncounters" +
-                                            inputResearchText);
+                        if (!MemoryCache.Default.Contains($"PokemonLocationAreaEncounters{inputResearchText}"))
+                            MemoryCache.Default.Add(
+                                $"PokemonLocationAreaEncounters{inputResearchText}",
+                                await appMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
+                                DateTime.Now.AddHours(24));
+                    MemoryCache.Default.Get($"PokemonLocationAreaEncounters{inputResearchText}");
 
                     if (pokemon != null)
                     {
-                        MemoryCache.Default.AddOrGetExisting(
-                            "PokemonSpecies" + inputResearchText,
-                            await appMethods.GetPokemonSpecies(pokemon.Species.Url),
-                            DateTime.Now.AddHours(24));
+                        if (!MemoryCache.Default.Contains($"PokemonSpecies{inputResearchText}"))
+                            MemoryCache.Default.Add(
+                                "PokemonSpecies" + inputResearchText,
+                                await appMethods.GetPokemonSpecies(pokemon.Species.Url),
+                                DateTime.Now.AddHours(24));
                         var pokemonSpecies =
-                            (PokemonSpecies) MemoryCache.Default.Get("PokemonSpecies" + inputResearchText);
+                            (PokemonSpecies) MemoryCache.Default.Get($"PokemonSpecies{inputResearchText}");
 
                         if (pokemonSpecies != null)
                         {
-                            MemoryCache.Default.AddOrGetExisting(
-                                "EvolutionChain" + inputResearchText,
-                                await appMethods.GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url),
-                                DateTime.Now.AddHours(24));
+                            if (!MemoryCache.Default.Contains($"EvolutionChain{inputResearchText}"))
+                                MemoryCache.Default.Add(
+                                    "EvolutionChain" + inputResearchText,
+                                    await appMethods.GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url),
+                                    DateTime.Now.AddHours(24));
                             var evolutionChain =
-                                (EvolutionChain) MemoryCache.Default.Get("EvolutionChain" + inputResearchText);
+                                (EvolutionChain) MemoryCache.Default.Get($"EvolutionChain{inputResearchText}");
 
                             var organizedEvolutionChain = new List<NamedApiResource>();
                             if (evolutionChain != null)
@@ -311,10 +315,10 @@ namespace Pokedex
                                 var chainLink = evolutionChain.Chain;
 
                                 // cache test
-                                Debug.WriteLine(
-                                    cache.Contains($"{inputResearchText}")
-                                        ? $"\n\n{inputResearchText} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n"
-                                        : $"\n\n{inputResearchText} is NOT CACHING \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n");
+                                // Debug.WriteLine(
+                                //     cache.Contains($"{inputResearchText}")
+                                //         ? $"\n\n{inputResearchText} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n"
+                                //         : $"\n\n{inputResearchText} is NOT CACHING \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n");
 
                                 do
                                 {
