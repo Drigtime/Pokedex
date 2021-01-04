@@ -14,16 +14,16 @@ namespace Pokedex
     public class AppMethods
     {
         public const string Left = "left";
-        public const string Right = "right";
+        public const string Right = "Right";
+        private static HttpClient _httpClient;
         public static readonly Uri BaseAddress = new Uri("https://pokeapi.co");
-        public HttpClient HttpClient;
 
         public AppMethods(HttpClient httpClient)
         {
-            HttpClient = httpClient;
+            _httpClient = httpClient;
         }
 
-        public async Task SetPokemonListView(NamedApiResourceList namedApiResourceList, ListView listView,
+        private static async Task<NamedApiResourceList> GetPokemonList(NamedApiResourceList namedApiResourceList,
             string direction)
         {
             var uri = direction == Left ? namedApiResourceList.Previous : namedApiResourceList.Next;
@@ -31,45 +31,46 @@ namespace Pokedex
             if (uri != null)
             {
                 namedApiResourceList = await GetNamedApiResourceList(uri);
-                await listView.SetSourceAsync(namedApiResourceList.Results);
             }
-        }
-
-        public async Task<NamedApiResourceList> SetPokemonListView(ListView listView)
-        {
-            var namedApiResourceList = await GetNamedApiResourceList(new Uri(BaseAddress, "api/v2/pokemon?limit=20"));
-            await listView.SetSourceAsync(namedApiResourceList.Results);
+            
             return namedApiResourceList;
         }
 
-        public async Task<NamedApiResourceList> GetNamedApiResourceList(Uri uri)
+        public static async Task<NamedApiResourceList> GetPokemonList()
         {
-            var apiHelper = new ApiHelper<NamedApiResourceList>(HttpClient);
+            var namedApiResourceList = await GetNamedApiResourceList(new Uri(BaseAddress, "api/v2/pokemon?limit=20"));
+            return namedApiResourceList;
+        }
+
+        private static async Task<NamedApiResourceList> GetNamedApiResourceList(Uri uri)
+        {
+            var apiHelper = new ApiHelper<NamedApiResourceList>(_httpClient);
             var namedApiResourceList = await apiHelper.GenericCallWebApiAsync(uri);
             return namedApiResourceList;
         }
 
-        public async Task<Pokemon> GetPokemon(Uri uri)
+        public static async Task<Pokemon> GetPokemon(Uri uri)
         {
-            var apiHelper = new ApiHelper<Pokemon>(HttpClient);
+            var apiHelper = new ApiHelper<Pokemon>(_httpClient);
+            
             return await apiHelper.GenericCallWebApiAsync(uri);
         }
 
-        public async Task<List<LocationAreaEncounter>> GetPokemonLocationAreaEncounters(Uri uri)
+        public static async Task<List<LocationAreaEncounter>> GetPokemonLocationAreaEncounters(Uri uri)
         {
-            var apiHelper = new ApiHelper<List<LocationAreaEncounter>>(HttpClient);
+            var apiHelper = new ApiHelper<List<LocationAreaEncounter>>(_httpClient);
             return await apiHelper.GenericCallWebApiAsync(uri);
         }
 
-        public async Task<PokemonSpecies> GetPokemonSpecies(Uri uri)
+        public static async Task<PokemonSpecies> GetPokemonSpecies(Uri uri)
         {
-            var apiHelper = new ApiHelper<PokemonSpecies>(HttpClient);
+            var apiHelper = new ApiHelper<PokemonSpecies>(_httpClient);
             return await apiHelper.GenericCallWebApiAsync(uri);
         }
 
-        public async Task<EvolutionChain> GetPokemonEvolution(Uri uri)
+        public static async Task<EvolutionChain> GetPokemonEvolution(Uri uri)
         {
-            var apiHelper = new ApiHelper<EvolutionChain>(HttpClient);
+            var apiHelper = new ApiHelper<EvolutionChain>(_httpClient);
             return await apiHelper.GenericCallWebApiAsync(uri);
         }
 
@@ -80,6 +81,17 @@ namespace Pokedex
             while (cacheEnumerator.MoveNext())
                 Debug.WriteLine("///////// Item de la liste du cache : \n\n{0} : {1}{2}", cacheEnumerator.Key,
                     cacheEnumerator.Value, Environment.NewLine);
+        }
+        
+        public static async Task<NamedApiResourceList> PaginatePokemonList(int paginationCounter, NamedApiResourceList namedApiResourceList, string direction)
+        {
+            if (!MemoryCache.Default.Contains($"PokemonList{paginationCounter}"))
+                MemoryCache.Default.Add($"PokemonList{paginationCounter}",
+                    await GetPokemonList(namedApiResourceList, direction), DateTime.Now.AddHours(24));
+
+            namedApiResourceList = (NamedApiResourceList) MemoryCache.Default.Get($"PokemonList{paginationCounter}");
+
+            return namedApiResourceList;
         }
     }
 }

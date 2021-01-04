@@ -86,7 +86,7 @@ namespace ApiHelperXUnitTests
             var httpClient = new HttpClient(handlerMock.Object);
             var appMethods = new AppMethods(httpClient);
 
-            var pokemonResult = await appMethods.GetPokemon(_uri);
+            var pokemonResult = await AppMethods.GetPokemon(_uri);
 
             Assert.IsType<Pokemon>(pokemonResult);
             //Assert.NotNull(result);
@@ -130,7 +130,7 @@ namespace ApiHelperXUnitTests
             var httpClient = new HttpClient(handlerMock.Object);
             var appMethods = new AppMethods(httpClient);
 
-            var locationAreaEncounterResult = await appMethods.GetPokemonLocationAreaEncounters(_uri);
+            var locationAreaEncounterResult = await AppMethods.GetPokemonLocationAreaEncounters(_uri);
 
             Assert.IsType<LocationAreaEncounter>(locationAreaEncounterResult);
             //Assert.NotNull(result);
@@ -174,7 +174,7 @@ namespace ApiHelperXUnitTests
             var httpClient = new HttpClient(handlerMock.Object);
             var appMethods = new AppMethods(httpClient);
 
-            var pokemonSpeciesResult = await appMethods.GetPokemonSpecies(_uri);
+            var pokemonSpeciesResult = await AppMethods.GetPokemonSpecies(_uri);
 
             Assert.IsType<PokemonSpecies>(pokemonSpeciesResult);
             //Assert.NotNull(result);

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.Caching;
+using System.Threading.Tasks;
 using PokeApi;
 using Terminal.Gui;
 
@@ -19,6 +20,8 @@ namespace Pokedex
 
             NamedApiResourceList namedApiResourceList = null;
             var cache = MemoryCache.Default;
+
+            var paginationCounter = 0;
 
             Application.Init();
 
@@ -148,9 +151,15 @@ namespace Pokedex
                         Debug.Write(cacheLimit);
                     }
 
-                    MemoryCache.Default.AddOrGetExisting("PokemonList",
-                        await appMethods.SetPokemonListView(pokemonListView), DateTime.Now.AddHours(24));
-                    namedApiResourceList = (NamedApiResourceList) MemoryCache.Default.Get("PokemonList");
+                    if (!MemoryCache.Default.Contains($"PokemonList{paginationCounter}"))
+                        MemoryCache.Default.Add($"PokemonList{paginationCounter}",
+                            await AppMethods.GetPokemonList(), DateTime.Now.AddHours(24));
+
+                    namedApiResourceList =
+                        (NamedApiResourceList) MemoryCache.Default.Get($"PokemonList{paginationCounter}");
+
+                    if (namedApiResourceList != null)
+                        await pokemonListView.SetSourceAsync(namedApiResourceList.Results);
 
                     Debug.Write(cache.Contains("PokemonList")
                         ? "\n\nla liste de pokemon est dans le cache\n\n"
@@ -176,7 +185,7 @@ namespace Pokedex
                     //         : $"\n\n{namedApiResource.Name} is NOT CACHING\n Nombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
 
                     if (!MemoryCache.Default.Contains($"{namedApiResource.Name}"))
-                        MemoryCache.Default.Add($"{namedApiResource.Name}", await appMethods.GetPokemon(uri),
+                        MemoryCache.Default.Add($"{namedApiResource.Name}", await AppMethods.GetPokemon(uri),
                             DateTime.Now.AddHours(24));
 
                     var pokemon = (Pokemon) MemoryCache.Default.Get($"{namedApiResource.Name}");
@@ -185,12 +194,12 @@ namespace Pokedex
                     {
                         if (!MemoryCache.Default.Contains($"PokemonLocationAreaEncounters{namedApiResource.Name}"))
                             MemoryCache.Default.Add($"PokemonLocationAreaEncounters{namedApiResource.Name}",
-                                await appMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
+                                await AppMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
                                 DateTime.Now.AddHours(24));
                         MemoryCache.Default.Get($"PokemonLocationAreaEncounters{namedApiResource.Name}");
                         if (!MemoryCache.Default.Contains($"PokemonSpecies{namedApiResource.Name}"))
                             MemoryCache.Default.Add($"PokemonSpecies{namedApiResource.Name}",
-                                await appMethods.GetPokemonSpecies(pokemon.Species.Url), DateTime.Now.AddHours(24));
+                                await AppMethods.GetPokemonSpecies(pokemon.Species.Url), DateTime.Now.AddHours(24));
                         var pokemonSpecies =
                             (PokemonSpecies) MemoryCache.Default.Get($"PokemonSpecies{namedApiResource.Name}");
 
@@ -198,7 +207,7 @@ namespace Pokedex
                         {
                             if (!MemoryCache.Default.Contains($"EvolutionChain{namedApiResource.Name}"))
                                 MemoryCache.Default.Add($"EvolutionChain{namedApiResource.Name}",
-                                    await appMethods.GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url),
+                                    await AppMethods.GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url),
                                     DateTime.Now.AddHours(24));
                             var evolutionChain =
                                 (EvolutionChain) MemoryCache.Default.Get($"EvolutionChain{namedApiResource.Name}");
@@ -268,7 +277,7 @@ namespace Pokedex
                     AppMethods.GetCacheEnumAsync(cache);
 
                     var uri = new Uri(AppMethods.BaseAddress, $"api/v2/pokemon/{inputResearchText}");
-                    Debug.Write(uri);
+                    // Debug.Write(uri);
                     // cache test
                     // Debug.WriteLine(
                     //     cache.Contains($"{inputResearchText}")
@@ -276,25 +285,28 @@ namespace Pokedex
                     //         : $"\n\n{inputResearchText} is NOT CACHING\n Nombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
 
                     if (!MemoryCache.Default.Contains($"{inputResearchText}"))
-                        MemoryCache.Default.Add($"{inputResearchText}", await appMethods.GetPokemon(uri),
-                            DateTime.Now.AddHours(24));
+                    {
+                        var tmp = await AppMethods.GetPokemon(uri);
+                        if (tmp != null)
+                            MemoryCache.Default.Add($"{inputResearchText}", tmp, DateTime.Now.AddHours(24));
+                    }
 
                     var pokemon = (Pokemon) MemoryCache.Default.Get($"{inputResearchText}");
 
-                    if (pokemon != null)
-                        if (!MemoryCache.Default.Contains($"PokemonLocationAreaEncounters{inputResearchText}"))
-                            MemoryCache.Default.Add(
-                                $"PokemonLocationAreaEncounters{inputResearchText}",
-                                await appMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
-                                DateTime.Now.AddHours(24));
-                    MemoryCache.Default.Get($"PokemonLocationAreaEncounters{inputResearchText}");
 
                     if (pokemon != null)
                     {
+                        if (!MemoryCache.Default.Contains($"PokemonLocationAreaEncounters{inputResearchText}"))
+                            MemoryCache.Default.Add(
+                                $"PokemonLocationAreaEncounters{inputResearchText}",
+                                await AppMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
+                                DateTime.Now.AddHours(24));
+                        MemoryCache.Default.Get($"PokemonLocationAreaEncounters{inputResearchText}");
+
                         if (!MemoryCache.Default.Contains($"PokemonSpecies{inputResearchText}"))
                             MemoryCache.Default.Add(
                                 "PokemonSpecies" + inputResearchText,
-                                await appMethods.GetPokemonSpecies(pokemon.Species.Url),
+                                await AppMethods.GetPokemonSpecies(pokemon.Species.Url),
                                 DateTime.Now.AddHours(24));
                         var pokemonSpecies =
                             (PokemonSpecies) MemoryCache.Default.Get($"PokemonSpecies{inputResearchText}");
@@ -304,7 +316,7 @@ namespace Pokedex
                             if (!MemoryCache.Default.Contains($"EvolutionChain{inputResearchText}"))
                                 MemoryCache.Default.Add(
                                     "EvolutionChain" + inputResearchText,
-                                    await appMethods.GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url),
+                                    await AppMethods.GetPokemonEvolution(pokemonSpecies.EvolutionChain.Url),
                                     DateTime.Now.AddHours(24));
                             var evolutionChain =
                                 (EvolutionChain) MemoryCache.Default.Get($"EvolutionChain{inputResearchText}");
@@ -357,8 +369,20 @@ namespace Pokedex
                             pokemonEvolutionListView.Height = organizedEvolutionChain.Count;
                         }
                     }
+                    else
+                    {
+                        pokemonNameTextView.Text = "Aucun résultat";
+                        pokemonNameTextView.Width = 14;
+                        pokemonTypeTextView.Text = "";
+                        pokemonTypeTextView.Width = 0;
+                        pokemonDescriptionTextView.Text = "";
+                        pokemonDescriptionTextView.Width = 0;
+                        pokemonDescriptionTextView.Height = 0;
+                        pokemonEvolutionListView.Width = 0;
+                        pokemonEvolutionListView.Height = 0;
+                    }
 
-                    //enumerate cache's keys & values
+                    // enumerate cache's keys & values
                     AppMethods.GetCacheEnumAsync(cache);
                 });
             }
@@ -371,7 +395,11 @@ namespace Pokedex
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    await appMethods.SetPokemonListView(namedApiResourceList, pokemonListView, AppMethods.Left);
+                    paginationCounter = paginationCounter == 0 ? 0 : paginationCounter - 1;
+                    namedApiResourceList =
+                        await AppMethods.PaginatePokemonList(paginationCounter, namedApiResourceList, AppMethods.Left);
+                    if (namedApiResourceList != null)
+                        await pokemonListView.SetSourceAsync(namedApiResourceList.Results);
                 });
             };
 
@@ -379,8 +407,11 @@ namespace Pokedex
             {
                 Application.MainLoop.Invoke(async () =>
                 {
-                    await appMethods.SetPokemonListView(namedApiResourceList, pokemonListView,
-                        AppMethods.Right);
+                    paginationCounter += 1;
+                    namedApiResourceList =
+                        await AppMethods.PaginatePokemonList(paginationCounter, namedApiResourceList, AppMethods.Right);
+                    if (namedApiResourceList != null)
+                        await pokemonListView.SetSourceAsync(namedApiResourceList.Results);
                 });
             };
 
