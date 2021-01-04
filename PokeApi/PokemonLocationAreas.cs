@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 
 namespace PokeApi
 {
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     public class LocationAreaEncounter
     {
         [JsonProperty("location_area")] public NamedApiResource LocationArea;
@@ -14,7 +15,8 @@ namespace PokeApi
             return LocationArea.ToString();
         }
     }
-
+    
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     public class VersionEncounterDetail
     {
         [JsonProperty("encounter_details")] public List<Encounter> EncounterDetails;
@@ -24,6 +26,7 @@ namespace PokeApi
         [JsonProperty("version")] public NamedApiResource Version;
     }
 
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     public class Encounter
     {
         [JsonProperty("chance")] public int Chance;

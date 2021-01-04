@@ -193,11 +193,11 @@ namespace Pokedex
 
                     if (pokemon != null)
                     {
-                        if (!MemoryCache.Default.Contains($"PokemonLocationAreaEncounters{namedApiResource.Name}"))
-                            MemoryCache.Default.Add($"PokemonLocationAreaEncounters{namedApiResource.Name}",
-                                await AppMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
-                                DateTime.Now.AddHours(24));
-                        MemoryCache.Default.Get($"PokemonLocationAreaEncounters{namedApiResource.Name}");
+                        // if (!MemoryCache.Default.Contains($"PokemonLocationAreaEncounters{namedApiResource.Name}"))
+                        //     MemoryCache.Default.Add($"PokemonLocationAreaEncounters{namedApiResource.Name}",
+                        //         await AppMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
+                        //         DateTime.Now.AddHours(24));
+                        // MemoryCache.Default.Get($"PokemonLocationAreaEncounters{namedApiResource.Name}");
                         if (!MemoryCache.Default.Contains($"PokemonSpecies{namedApiResource.Name}"))
                             MemoryCache.Default.Add($"PokemonSpecies{namedApiResource.Name}",
                                 await AppMethods.GetPokemonSpecies(pokemon.Species.Url), DateTime.Now.AddHours(24));
@@ -297,12 +297,12 @@ namespace Pokedex
 
                     if (pokemon != null)
                     {
-                        if (!MemoryCache.Default.Contains($"PokemonLocationAreaEncounters{inputResearchText}"))
-                            MemoryCache.Default.Add(
-                                $"PokemonLocationAreaEncounters{inputResearchText}",
-                                await AppMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
-                                DateTime.Now.AddHours(24));
-                        MemoryCache.Default.Get($"PokemonLocationAreaEncounters{inputResearchText}");
+                        // if (!MemoryCache.Default.Contains($"PokemonLocationAreaEncounters{inputResearchText}"))
+                        //     MemoryCache.Default.Add(
+                        //         $"PokemonLocationAreaEncounters{inputResearchText}",
+                        //         await AppMethods.GetPokemonLocationAreaEncounters(pokemon.LocationAreaEncounters),
+                        //         DateTime.Now.AddHours(24));
+                        // MemoryCache.Default.Get($"PokemonLocationAreaEncounters{inputResearchText}");
 
                         if (!MemoryCache.Default.Contains($"PokemonSpecies{inputResearchText}"))
                             MemoryCache.Default.Add(
