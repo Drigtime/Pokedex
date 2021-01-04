@@ -56,9 +56,9 @@ namespace Pokedex
             return await apiHelper.GenericCallWebApiAsync(uri);
         }
 
-        public static async Task<List<LocationAreaEncounter>> GetPokemonLocationAreaEncounters(Uri uri)
+        public static async Task<LocationAreaEncounter> GetPokemonLocationAreaEncounters(Uri uri)
         {
-            var apiHelper = new ApiHelper<List<LocationAreaEncounter>>(_httpClient);
+            var apiHelper = new ApiHelper<LocationAreaEncounter>(_httpClient);
             return await apiHelper.GenericCallWebApiAsync(uri);
         }
 

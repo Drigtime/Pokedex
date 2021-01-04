@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
+using System.Web.WebPages;
 using PokeApi;
 using Terminal.Gui;
 
@@ -284,7 +285,7 @@ namespace Pokedex
                     //         ? $"\n\n{inputResearchText} is in the cache \nNombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n"
                     //         : $"\n\n{inputResearchText} is NOT CACHING\n Nombre d'elements dans la liste du cache : {cache.GetCount()}\n\n\n");
 
-                    if (!MemoryCache.Default.Contains($"{inputResearchText}"))
+                    if (!inputResearchText.IsEmpty() && !MemoryCache.Default.Contains($"{inputResearchText}"))
                     {
                         var tmp = await AppMethods.GetPokemon(uri);
                         if (tmp != null)

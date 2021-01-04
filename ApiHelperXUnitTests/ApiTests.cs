@@ -130,7 +130,7 @@ namespace ApiHelperXUnitTests
             var httpClient = new HttpClient(handlerMock.Object);
             var appMethods = new AppMethods(httpClient);
 
-            var locationAreaEncounterResult = await AppMethods.GetPokemonLocationAreaEncounters(_uri);
+            var locationAreaEncounterResult = await AppMethods.GetPokemonLocationAreaEncounters(new Uri("https://pokeapi.co/api/v2/pokemon/12/encounters"));
 
             Assert.IsType<LocationAreaEncounter>(locationAreaEncounterResult);
             //Assert.NotNull(result);
